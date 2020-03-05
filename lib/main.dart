@@ -1,6 +1,10 @@
+import 'package:ccc_flutter/constants.dart';
+import 'package:ccc_flutter/widgets/side_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'book.dart';
+import 'helpers.dart';
+import 'widgets/song_screen.dart';
 import 'dart:async';
 import 'dart:convert';
 
@@ -13,28 +17,35 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Carte Cantari',
       theme: ThemeData(
-        primarySwatch: Colors.cyan
+        primarySwatch: createMaterialColor(COLOR_BLUE)
       ),
       darkTheme: ThemeData.dark(),
-      home: MyHomePage(title: 'Toate cântările'),
+      home: MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
-
-  final String title;
+  MyHomePage({Key key}) : super(key: key);
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  //final _saved = Set<String>();
   final _txtController = TextEditingController();
   var _books = <Book>[];
+  var _crtBookId = ALL_SONGS_BOOK_ID;
   var _searchString = "";
+
+  List<Book> getBooks() {
+    final allSongsBook = Book(
+      name: "Toate cântările",
+      id: ALL_SONGS_BOOK_ID,
+    );
+    allSongsBook.songs = allSongs(_books);
+    return []..add(allSongsBook)..addAll(_books);
+  }
 
   Future<List<Book>> fetchBooks() async {
     final response = await http.get('http://185.177.59.158/CarteCantari/books');
@@ -57,35 +68,54 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
+  String getBookTitleById(String bookId) {
+    if (bookId == ALL_SONGS_BOOK_ID) {
+      return "Toate cântările";
+    }
+    return _books.firstWhere((book) => book.id == bookId).name;
+  }
+
+  Future<void> loadBooks() async {
+    final books = await fetchBooks();
+
+    for (var book in books) {
+      try {
+        final songs = await fetchSongs(book);
+        songs.sort((s1, s2) => s1.compareTo(s2));
+        books
+            .firstWhere((b) => b.id == book.id)
+            .songs = songs;
+        setState(() {
+          _books = books;
+        });
+      } catch (e) {
+        // TODO: show error when fetch failed
+      }
+    }
+  }
+
   @override
   void initState() {
     super.initState();
 
-    fetchBooks().then((books) {
-      books.forEach((book) =>
-      {
-        fetchSongs(book).then((songs) {
-          songs.sort((s1, s2) => s1.compareTo(s2));
-          books
-              .firstWhere((b) => b.id == book.id)
-              .songs = songs;
-          setState(() {
-            _books = books;
-          });
-        })}
-      );
-    });
+    loadBooks();
   }
 
   Widget _buildSongList() {
-    final List<Song> allSongs =_books.map((b) => b.songs).expand((i) => i).toList();
-    //final filteredSongs = all_songs.where((song) => _searchString == "" || song.)
+    final books = getBooks();
+    if (books.length == 0) {
+      return Container();
+    }
+    final List<Song> songs = books
+        .firstWhere((b) => b.id == _crtBookId)
+        .songs;
+    final filteredSongs = songs.where((Song song) => _searchString == "" || song.searchableTitle.contains(_searchString)).toList();
     return ListView.builder(
         padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-        itemCount: allSongs.length,
+        itemCount: filteredSongs.length,
         itemBuilder: (context, i) {
           final index = i;
-          return _buildRow(allSongs[index]);
+          return _buildRow(filteredSongs[index]);
     });
   }
 
@@ -93,41 +123,67 @@ class _MyHomePageState extends State<MyHomePage> {
     final numFont = const TextStyle(
       fontSize: 20.0,
       fontWeight: FontWeight.bold,
+      color: COLOR_DARK_BLUE_TRANSPARENT,
     );
 
-    final titleFont = const TextStyle(
+    final songTitleFont = const TextStyle(
       fontSize: 20.0,
+      fontWeight: FontWeight.w500,
     );
-
-    //final bool alreadySaved = _saved.contains(song.getId());
 
     Widget txtNum = Text(
-      song.book.id + ' ' + song.number.toString() + ' ',
+      song.book.id + ' ' + (song.number != null ? song.number.toString() : '') + ' ',
       style: numFont,
     );
 
     Widget txtTitle = Text(song.title,
-      style: titleFont,
+      style: songTitleFont,
     );
 
     return ListTile(
       title: Row(
         children: [txtNum, txtTitle],
       ),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => SongScreen(song: song),
+          )
+        );
+      },
       dense: true,
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final books = getBooks();
     return Scaffold(
+      drawer: SideMenu(),
       appBar: AppBar(
-        title: Text(
-          widget.title,
-          style: TextStyle(fontSize: 25.0, fontWeight: FontWeight.bold),
-        ),
+        title: DropdownButton<String>(
+          value: _crtBookId,
+          onChanged: (String value) {
+            setState(() {
+              _crtBookId = value;
+            });
+          },
+          items: books.map((Book book) {
+             return DropdownMenuItem<String>(
+               value: book.id,
+               child: Text(
+                 getBookTitleById(book.id),
+                 style: TextStyle(
+                     fontSize: 25.0,
+                     fontWeight: book.id == _crtBookId ? FontWeight.bold : FontWeight.w300,
+                 ),
+             ),
+            );
+          }).toList(),
+          underline: Container(),
+        )
       ),
-      //body: _buildSongList(),
       body: Column(
           children: <Widget>[
             Padding(
@@ -150,10 +206,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                   hintText: 'Caută...',
                   focusedBorder: const OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.grey),
+                    borderSide: BorderSide(color: Colors.black12),
                   ),
                   enabledBorder: const OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.grey),
+                    borderSide: BorderSide(color: Colors.black12),
                   ),
                   contentPadding: new EdgeInsets.all(0),
                 ),
@@ -162,7 +218,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 onChanged: (String value) {
                   setState(() {
-                    _searchString = value;
+                    _searchString = Song.getSearchable(value);
                   });
                 },
                 controller: _txtController,

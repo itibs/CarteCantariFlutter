@@ -1,3 +1,12 @@
+const String ALL_SONGS_BOOK_ID="ALL_SONGS";
+
+List<Song> allSongs(List<Book> books) {
+  return books
+      .map((b) => b.songs)
+      .expand((i) => i)
+      .toList();
+}
+
 class Book {
   final String name;
   final String id;
@@ -29,20 +38,20 @@ class Song implements Comparable<Song> {
             new RegExp(r"[ăâ]"),
             "a"
         ).replaceAll(
-            new RegExp(r"[ț]"),
-            "țţ"
+            new RegExp(r"[îÎ]"),
+            "i"
         ).replaceAll(
-            new RegExp(r"[ș]"),
-            "șş"
+            new RegExp(r"[țţ]"),
+            "t"
         ).replaceAll(
-            new RegExp(r"[\-;,\._:]"),
-            " "
+            new RegExp(r"[șş]"),
+            "s"
         ).replaceAll(
-            new RegExp(r"[\-;,\._:]"),
+            new RegExp(r"[^a-z0-9 ]"),
             " "
         ).split(
             new RegExp(r" +")
-        ).join(" ");
+        ).join(" ").trim();
 
     return s;
   }
@@ -51,7 +60,7 @@ class Song implements Comparable<Song> {
     var title = json['title'];
     var number = json['number'] != null ? int.parse(json['number']) : null;
     var text = json['text'];
-    var searchableTitle = book.id + " " + (number != null ? number.toString() : "") + title;
+    var searchableTitle = book.id + " " + (number != null ? number.toString() : "") + " " + title;
     searchableTitle = getSearchable(searchableTitle);
 
     return Song(
@@ -65,6 +74,10 @@ class Song implements Comparable<Song> {
 
   String getId() {
     return number.toString() + " " + title;
+  }
+
+  String get fullTitle {
+    return book.id + " " + (number != null ? number.toString() + ". " : "") + title;
   }
 
   @override
