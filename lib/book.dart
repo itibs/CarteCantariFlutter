@@ -1,3 +1,12 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
+
+import 'dart:developer' as developer;
+
 const String ALL_SONGS_BOOK_ID="ALL_SONGS";
 
 List<Song> allSongs(List<Book> books) {
@@ -8,17 +17,33 @@ List<Song> allSongs(List<Book> books) {
 }
 
 class Book {
-  final String name;
   final String id;
+  String name;
   List<Song> songs = [];
 
   Book({this.name, this.id});
 
   factory Book.fromJson(Map<String, dynamic> json) {
-    return Book(
+    var book = Book(
       name: json['name'],
       id: json['id'],
     );
+
+    if (json['songs'] != null) {
+      book.songs = (json['songs'] as List)
+          .map((s) => Song.fromJson(s, book))
+          .toList();
+    }
+
+    return book;
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      "id": id,
+      "name": name,
+      "songs": songs.map((s) => s.toJson()).toList(),
+    };
   }
 }
 
@@ -28,8 +53,9 @@ class Song implements Comparable<Song> {
   int number;
   String text;
   String searchableTitle;
+  String searchableText;
 
-  Song({this.book, this.title, this.number, this.text, this.searchableTitle});
+  Song({this.book, this.title, this.number, this.text, this.searchableTitle, this.searchableText});
 
   static String getSearchable(String s) {
     s = s.toLowerCase();
@@ -62,14 +88,25 @@ class Song implements Comparable<Song> {
     var text = json['text'];
     var searchableTitle = book.id + " " + (number != null ? number.toString() : "") + " " + title;
     searchableTitle = getSearchable(searchableTitle);
+    final searchableText = getSearchable(text);
 
     return Song(
       book: book,
       title: title,
       number: number,
       text: text,
-      searchableTitle: searchableTitle
+      searchableTitle: searchableTitle,
+      searchableText: searchableText,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    final songJson = {
+      'title': title,
+      'number': number?.toString(),
+      'text': text,
+    };
+    return songJson;
   }
 
   String getId() {
@@ -86,5 +123,96 @@ class Song implements Comparable<Song> {
       return this.number.compareTo(other.number);
     }
     return this.title.compareTo(other.title);
+  }
+}
+
+Stream<Book> fetchBooks() async* {
+  // verify if existing files
+  final directory = await getApplicationDocumentsDirectory();
+  final file = File('${directory.path}/books.json');
+  if (!(await file.exists())) {
+    // return assets for fast retrieval
+    for (var book in await fetchBooksFromAssets()) {
+      yield book;
+    }
+
+    // get updated from server
+    await for (var book in fetchBooksFromServer()) {
+      yield book;
+    }
+  } else { // file exists
+    for (var book in await fetchBooksFromFile(directory)) {
+      yield book;
+    }
+  }
+}
+
+Future<void> storeBooks(List<Book> books, Directory directory) async {
+  final file = File('${directory.path}/books.json');
+  final booksJson = books
+      .map((book) => book.toJson())
+      .toList();
+  final strBooksJson = json.encode(booksJson);
+  await file.writeAsString(strBooksJson);
+  developer.log("${DateTime.now()} Stored books in file");
+}
+
+Future<List<Book>> fetchBooksFromFile(Directory directory) async {
+  final directory = await getApplicationDocumentsDirectory();
+  final file = File('${directory.path}/books.json');
+  final strBooksJson = await file.readAsString();
+
+  final books = (json.decode(strBooksJson) as List)
+      .map((bookJson) => Book.fromJson(bookJson))
+      .toList();
+  developer.log("${DateTime.now()} Loaded books in file");
+  return books;
+}
+
+Future<List<Book>> fetchBooksFromAssets() async {
+  final strBooksJson = await rootBundle.loadString('assets/books.json');
+  final books = (json.decode(strBooksJson) as List)
+      .map((bookJson) => Book.fromJson(bookJson))
+      .toList();
+
+  developer.log("${DateTime.now()} Fetched all books from assets.");
+  return books;
+}
+
+Stream<Book> fetchBooksFromServer() async* {
+  final response = await http.get('http://185.177.59.158/CarteCantari/books');
+
+  if (response.statusCode == 200) {
+    final books = (json.decode(response.body) as List)
+        .map((bookJson) => Book.fromJson(bookJson))
+        .toList();
+
+    for (var book in books) {
+      try {
+        final songs = await fetchSongsFromServer(book);
+        songs.sort((s1, s2) => s1.compareTo(s2));
+        book.songs = songs;
+        yield book;
+        developer.log("${DateTime.now()} Fetched ${book.id} from server.");
+      } catch (e) {
+        // TODO: do something when fetch failed?
+      }
+    }
+
+    final directory = await getApplicationDocumentsDirectory();
+    storeBooks(books, directory);
+  } else {
+    throw Exception('Failed to load books');
+  }
+}
+
+Future<List<Song>> fetchSongsFromServer(Book book) async {
+  final response = await http.get('http://185.177.59.158/CarteCantari/books/' + book.id);
+  if (response.statusCode == 200) {
+    Map<String, dynamic> resp = json.decode(response.body);
+    return (resp['songs'] as List).map((songJson) =>
+        Song.fromJson(songJson, book)).toList();
+  } else {
+    throw Exception('Failed to load songs for book ' + book.name);
   }
 }

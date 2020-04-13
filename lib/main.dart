@@ -1,26 +1,33 @@
 import 'package:ccc_flutter/constants.dart';
+import 'package:ccc_flutter/global/theme/app_themes.dart';
+import 'package:ccc_flutter/widgets/horizontal_button.dart';
 import 'package:ccc_flutter/widgets/side_menu.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'book.dart';
-import 'helpers.dart';
+import 'global/theme/bloc/theme_bloc.dart';
 import 'widgets/song_screen.dart';
 import 'dart:async';
-import 'dart:convert';
+import 'dart:developer' as developer;
 
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Carte Cantari',
-      theme: ThemeData(
-        primarySwatch: createMaterialColor(COLOR_BLUE)
+    return BlocProvider(
+      create: (context) => ThemeBloc(),
+      child: BlocBuilder<ThemeBloc, ThemeState>(
+        builder: (context, state) {
+          return MaterialApp(
+            title: 'Carte Cantari',
+            theme: state.themeData,
+            home: MyHomePage(),
+          );
+        },
       ),
-      darkTheme: ThemeData.dark(),
-      home: MyHomePage(),
     );
   }
 }
@@ -37,6 +44,7 @@ class _MyHomePageState extends State<MyHomePage> {
   var _books = <Book>[];
   var _crtBookId = ALL_SONGS_BOOK_ID;
   var _searchString = "";
+  List<Song> _searchLyricsResults;
 
   List<Book> getBooks() {
     final allSongsBook = Book(
@@ -47,27 +55,6 @@ class _MyHomePageState extends State<MyHomePage> {
     return []..add(allSongsBook)..addAll(_books);
   }
 
-  Future<List<Book>> fetchBooks() async {
-    final response = await http.get('http://185.177.59.158/CarteCantari/books');
-    if (response.statusCode == 200) {
-      return (json.decode(response.body) as List).map((bookJson) =>
-          Book.fromJson(bookJson)).toList();
-    } else {
-      throw Exception('Failed to load books');
-    }
-  }
-
-  Future<List<Song>> fetchSongs(Book book) async {
-    final response = await http.get('http://185.177.59.158/CarteCantari/books/' + book.id);
-    if (response.statusCode == 200) {
-      Map<String, dynamic> resp = json.decode(response.body);
-      return (resp['songs'] as List).map((songJson) =>
-          Song.fromJson(songJson, book)).toList();
-    } else {
-      throw Exception('Failed to load songs for book ' + book.name);
-    }
-  }
-
   String getBookTitleById(String bookId) {
     if (bookId == ALL_SONGS_BOOK_ID) {
       return "Toate cântările";
@@ -76,40 +63,94 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> loadBooks() async {
-    final books = await fetchBooks();
-
-    for (var book in books) {
-      try {
-        final songs = await fetchSongs(book);
-        songs.sort((s1, s2) => s1.compareTo(s2));
-        books
-            .firstWhere((b) => b.id == book.id)
-            .songs = songs;
+    await for (var book in fetchBooks()) {
+      developer.log("${DateTime.now()} received ${book.id}");
+      if (_books.where((b) => b.id == book.id).length > 0) {
         setState(() {
-          _books = books;
+          _books = _books
+              .map((b) => (b.id == book.id) ? book : b)
+              .toList();
         });
-      } catch (e) {
-        // TODO: show error when fetch failed
+      } else {
+        setState(() {
+          _books = [..._books, book];
+        });
       }
     }
+  }
+
+  Future<void> syncBooks() async {
+    await for (var book in fetchBooksFromServer()) {
+      developer.log("${DateTime.now()} received ${book.id}");
+      if (_books.where((b) => b.id == book.id).length > 0) {
+        setState(() {
+          _books = _books
+              .map((b) => (b.id == book.id) ? book : b)
+              .toList();
+        });
+      } else {
+        setState(() {
+          _books = [..._books, book];
+        });
+      }
+    }
+  }
+
+  void searchLyrics() {
+    final books = getBooks();
+    final List<Song> songs = books
+        .firstWhere((b) => b.id == _crtBookId)
+        .songs;
+    final filteredSongs = songs.where(
+            (Song song) =>
+              _searchString == ""
+                || song.searchableTitle.contains(_searchString)
+                || song.searchableText.contains(_searchString)
+    ).toList();
+    setState(() {
+      _searchLyricsResults = filteredSongs;
+    });
+  }
+
+  void _changeBook(String value) {
+    setState(() {
+      _crtBookId = value;
+    });
+    if (_searchLyricsResults != null) {
+      searchLyrics();
+    }
+  }
+
+  List<Song> getFilteredSongs() {
+    final books = getBooks();
+    if (books.length == 0) {
+      return [];
+    }
+    final List<Song> songs = books
+        .firstWhere((b) => b.id == _crtBookId)
+        .songs;
+    return songs.where(
+            (Song song) =>
+              _searchString == ""
+                || song.searchableTitle.contains(_searchString)
+    ).toList();
   }
 
   @override
   void initState() {
     super.initState();
-
+    SharedPreferences.getInstance()
+        .then((prefs) {
+          BlocProvider.of<ThemeBloc>(context).add(
+              ThemeLoaded(theme: AppTheme.values[prefs.getInt(PREFS_APP_THEME_KEY) ?? 0])
+          );
+    });
+    developer.log("${DateTime.now()} Init state");
     loadBooks();
   }
 
   Widget _buildSongList() {
-    final books = getBooks();
-    if (books.length == 0) {
-      return Container();
-    }
-    final List<Song> songs = books
-        .firstWhere((b) => b.id == _crtBookId)
-        .songs;
-    final filteredSongs = songs.where((Song song) => _searchString == "" || song.searchableTitle.contains(_searchString)).toList();
+    final filteredSongs = _searchLyricsResults ?? getFilteredSongs();
     return ListView.builder(
         padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
         itemCount: filteredSongs.length,
@@ -136,7 +177,8 @@ class _MyHomePageState extends State<MyHomePage> {
       style: numFont,
     );
 
-    Widget txtTitle = Text(song.title,
+    Widget txtTitle = Text(
+      song.title,
       style: songTitleFont,
     );
 
@@ -158,17 +200,14 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    developer.log("${DateTime.now()} running build ${_books.length}");
     final books = getBooks();
     return Scaffold(
-      drawer: SideMenu(),
+      drawer: SideMenu(syncBooks: syncBooks,),
       appBar: AppBar(
         title: DropdownButton<String>(
           value: _crtBookId,
-          onChanged: (String value) {
-            setState(() {
-              _crtBookId = value;
-            });
-          },
+          onChanged: _changeBook,
           items: books.map((Book book) {
              return DropdownMenuItem<String>(
                value: book.id,
@@ -182,46 +221,79 @@ class _MyHomePageState extends State<MyHomePage> {
             );
           }).toList(),
           underline: Container(),
-        )
+        ),
+        actions: <Widget>[
+          Padding(
+            child: IconButton(
+              icon: Icon(Icons.tonality),
+              onPressed: () {
+                BlocProvider.of<ThemeBloc>(context).add(ThemeChanged());
+              },
+              iconSize: 40.0,
+            ),
+            padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
+          )
+        ],
       ),
       body: Column(
           children: <Widget>[
             Padding(
               padding: const EdgeInsets.fromLTRB(10, 10, 10, 5),
-              child: TextField(
-                enableInteractiveSelection: false,
-                decoration: InputDecoration(
-                  prefixIcon: const Icon(Icons.search, color: Colors.blueGrey,),
-                  suffixIcon: Visibility(
-                    child: GestureDetector(
-                      child: Icon(Icons.clear, color: Colors.blueGrey),
-                      onTap: () {
-                        WidgetsBinding.instance.addPostFrameCallback((_) => _txtController.clear());
-                        setState(() {
-                          _searchString = "";
-                        });
-                      },
+              child: Column(
+                verticalDirection: VerticalDirection.up,
+                children: <Widget>[
+                  HorizontalButton(
+                    callback: searchLyrics,
+                    visible: _searchLyricsResults == null && _searchString.trim().length > 0,
+                    text: "Caută în versuri",
+                    color: COLOR_DARK_BLUE,
+                    darkColor: COLOR_DARK_BLUE.withOpacity(0.3),
+                  ),
+                  HorizontalButton(
+                    callback: () => _changeBook(ALL_SONGS_BOOK_ID),
+                    visible: _crtBookId != ALL_SONGS_BOOK_ID && _searchString.trim().length > 0,
+                    text: "Caută în toate cărțile",
+                    color: Colors.deepOrange[600],
+                    darkColor: Colors.deepOrange[600].withOpacity(0.2),
+                  ),
+                  TextField(
+                    enableInteractiveSelection: false,
+                    decoration: InputDecoration(
+                      prefixIcon: const Icon(Icons.search, color: Colors.blueGrey,),
+                      suffixIcon: Visibility(
+                        child: GestureDetector(
+                          child: Icon(Icons.clear, color: Colors.blueGrey),
+                          onTap: () {
+                            WidgetsBinding.instance.addPostFrameCallback((_) => _txtController.clear());
+                            setState(() {
+                              _searchString = "";
+                              _searchLyricsResults = null;
+                            });
+                          },
+                        ),
+                        visible: _searchString != "",
+                      ),
+                      hintText: 'Caută...',
+                      focusedBorder: const OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black12),
+                      ),
+                      enabledBorder: const OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black12),
+                      ),
+                      contentPadding: new EdgeInsets.all(0),
                     ),
-                    visible: _searchString != "",
+                    style: new TextStyle(
+                      fontSize: 20.0,
+                    ),
+                    onChanged: (String value) {
+                      setState(() {
+                        _searchString = Song.getSearchable(value);
+                        _searchLyricsResults = null;
+                      });
+                    },
+                    controller: _txtController,
                   ),
-                  hintText: 'Caută...',
-                  focusedBorder: const OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.black12),
-                  ),
-                  enabledBorder: const OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.black12),
-                  ),
-                  contentPadding: new EdgeInsets.all(0),
-                ),
-                style: new TextStyle(
-                  fontSize: 20.0,
-                ),
-                onChanged: (String value) {
-                  setState(() {
-                    _searchString = Song.getSearchable(value);
-                  });
-                },
-                controller: _txtController,
+                ],
               ),
             ),
             Expanded(

@@ -2,6 +2,10 @@ import 'package:ccc_flutter/constants.dart';
 import 'package:flutter/material.dart';
 
 class SideMenu extends StatelessWidget {
+  final VoidCallback syncBooks;
+
+  SideMenu({Key key, @required this.syncBooks}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -21,29 +25,9 @@ class SideMenu extends StatelessWidget {
             ),
           ),
           ListTile(
-            leading: Icon(Icons.input),
-            title: Text('Welcome'),
-            onTap: () => {},
-          ),
-          ListTile(
-            leading: Icon(Icons.verified_user),
-            title: Text('Profile'),
-            onTap: () => {Navigator.of(context).pop()},
-          ),
-          ListTile(
-            leading: Icon(Icons.settings),
-            title: Text('Settings'),
-            onTap: () => {Navigator.of(context).pop()},
-          ),
-          ListTile(
-            leading: Icon(Icons.border_color),
-            title: Text('Feedback'),
-            onTap: () => {Navigator.of(context).pop()},
-          ),
-          ListTile(
-            leading: Icon(Icons.exit_to_app),
-            title: Text('Logout'),
-            onTap: () => {Navigator.of(context).pop()},
+            leading: Icon(Icons.sync),
+            title: Text('Actualizare cântări'),
+            onTap: syncBooks,
           ),
         ],
       ),
