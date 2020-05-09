@@ -4,9 +4,11 @@ import 'package:ccc_flutter/widgets/horizontal_button.dart';
 import 'package:ccc_flutter/widgets/side_menu.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'book.dart';
+import 'favorites.dart';
 import 'global/theme/bloc/theme_bloc.dart';
 import 'widgets/song_screen.dart';
 import 'dart:async';
@@ -44,22 +46,44 @@ class _MyHomePageState extends State<MyHomePage> {
   var _books = <Book>[];
   var _crtBookId = ALL_SONGS_BOOK_ID;
   var _searchString = "";
+  var _favorites = Set<String>();
   List<Song> _searchLyricsResults;
 
   List<Book> getBooks() {
+    final _allSongs = allSongs(_books);
+    final _favSongs = _allSongs
+        .where((s) => _favorites.contains(s.getId()))
+        .toList();
     final allSongsBook = Book(
       name: "Toate cântările",
       id: ALL_SONGS_BOOK_ID,
-    );
-    allSongsBook.songs = allSongs(_books);
-    return []..add(allSongsBook)..addAll(_books);
+    )
+      ..songs = _allSongs;
+    final favoritesBook = Book(
+      name: "Lista mea",
+      id: FAVORITES_ID,
+    )
+      ..songs = _favSongs;
+    return []
+      ..add(allSongsBook)
+      ..addAll(_books)
+      ..add(favoritesBook);
   }
 
   String getBookTitleById(String bookId) {
     if (bookId == ALL_SONGS_BOOK_ID) {
       return "Toate cântările";
+    } else if (bookId == FAVORITES_ID) {
+      return "Lista mea";
     }
     return _books.firstWhere((book) => book.id == bookId).name;
+  }
+
+  Future<void> loadFavorites() async {
+    final favorites = await fetchFavoritesFromFile();
+    setState(() {
+      _favorites = favorites;
+    });
   }
 
   Future<void> loadBooks() async {
@@ -129,11 +153,18 @@ class _MyHomePageState extends State<MyHomePage> {
     final List<Song> songs = books
         .firstWhere((b) => b.id == _crtBookId)
         .songs;
-    return songs.where(
-            (Song song) =>
-              _searchString == ""
-                || song.searchableTitle.contains(_searchString)
+    final numberSongs = songs.where(
+            (Song song) => song.number.toString() == _searchString
     ).toList();
+
+    final otherSongs = songs.where(
+            (Song song) =>
+        song.number.toString() != _searchString
+            && (_searchString == "" ||
+            song.searchableTitle.contains(_searchString))
+    ).toList();
+
+    return numberSongs + otherSongs;
   }
 
   @override
@@ -147,24 +178,25 @@ class _MyHomePageState extends State<MyHomePage> {
     });
     developer.log("${DateTime.now()} Init state");
     loadBooks();
+    loadFavorites();
   }
 
-  Widget _buildSongList() {
+  Widget _buildSongList(bool isDark) {
     final filteredSongs = _searchLyricsResults ?? getFilteredSongs();
     return ListView.builder(
         padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
         itemCount: filteredSongs.length,
         itemBuilder: (context, i) {
           final index = i;
-          return _buildRow(filteredSongs[index]);
+          return _buildRow(filteredSongs[index], isDark);
     });
   }
 
-  Widget _buildRow(Song song) {
-    final numFont = const TextStyle(
+  Widget _buildRow(Song song, bool isDark) {
+    final numFont = TextStyle(
       fontSize: 20.0,
-      fontWeight: FontWeight.bold,
-      color: COLOR_DARK_BLUE_TRANSPARENT,
+      fontWeight: FontWeight.w900,
+      color: isDark ? COLOR_LIGHT_BLUE : COLOR_DARK_BLUE,
     );
 
     final songTitleFont = const TextStyle(
@@ -190,7 +222,19 @@ class _MyHomePageState extends State<MyHomePage> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => SongScreen(song: song),
+            builder: (context) =>
+                SongScreen(
+                  song: song,
+                  setFavorite: (songId, value) {
+                    setState(() {
+                      if (value) {
+                        _favorites.add(songId);
+                      } else {
+                        _favorites.remove(songId);
+                      }
+                    });
+                  },
+                ),
           )
         );
       },
@@ -200,24 +244,52 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    developer.log("${DateTime.now()} running build ${_books.length}");
+    developer.log("${DateTime.now()} running build ${_books.length} books");
     final books = getBooks();
+
+    final isDark = Theme
+        .of(context)
+        .brightness == Brightness.dark;
+
     return Scaffold(
       drawer: SideMenu(syncBooks: syncBooks,),
       appBar: AppBar(
         title: DropdownButton<String>(
           value: _crtBookId,
+          dropdownColor: Theme
+              .of(context)
+              .primaryColor,
+          iconEnabledColor: Theme
+              .of(context)
+              .primaryTextTheme
+              .headline6
+              .color,
           onChanged: _changeBook,
           items: books.map((Book book) {
              return DropdownMenuItem<String>(
                value: book.id,
-               child: Text(
-                 getBookTitleById(book.id),
-                 style: TextStyle(
-                     fontSize: 25.0,
-                     fontWeight: book.id == _crtBookId ? FontWeight.bold : FontWeight.w300,
-                 ),
-             ),
+                 child: Row(
+                   children: <Widget>[
+                     book.id == FAVORITES_ID ? Padding(
+                         padding: EdgeInsets.fromLTRB(0, 0, 5, 0),
+                         child: Icon(
+                             Icons.star, color: isDark
+                             ? COLOR_DARK_FAVORITE
+                             : COLOR_FAVORITE
+                         )
+                     ) : Container(),
+                     Text(
+                       getBookTitleById(book.id),
+                       style: TextStyle(
+                         fontSize: 22.0,
+                         color: Colors.white,
+                         fontWeight: book.id == _crtBookId
+                             ? FontWeight.bold
+                             : FontWeight.w300,
+                       ),
+                     ),
+                   ],
+                 )
             );
           }).toList(),
           underline: Container(),
@@ -229,7 +301,7 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: () {
                 BlocProvider.of<ThemeBloc>(context).add(ThemeChanged());
               },
-              iconSize: 40.0,
+              iconSize: 30.0,
             ),
             padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
           )
@@ -239,65 +311,162 @@ class _MyHomePageState extends State<MyHomePage> {
           children: <Widget>[
             Padding(
               padding: const EdgeInsets.fromLTRB(10, 10, 10, 5),
-              child: Column(
-                verticalDirection: VerticalDirection.up,
-                children: <Widget>[
-                  HorizontalButton(
-                    callback: searchLyrics,
-                    visible: _searchLyricsResults == null && _searchString.trim().length > 0,
-                    text: "Caută în versuri",
-                    color: COLOR_DARK_BLUE,
-                    darkColor: COLOR_DARK_BLUE.withOpacity(0.3),
-                  ),
-                  HorizontalButton(
-                    callback: () => _changeBook(ALL_SONGS_BOOK_ID),
-                    visible: _crtBookId != ALL_SONGS_BOOK_ID && _searchString.trim().length > 0,
-                    text: "Caută în toate cărțile",
-                    color: Colors.deepOrange[600],
-                    darkColor: Colors.deepOrange[600].withOpacity(0.2),
-                  ),
-                  TextField(
-                    enableInteractiveSelection: false,
-                    decoration: InputDecoration(
-                      prefixIcon: const Icon(Icons.search, color: Colors.blueGrey,),
-                      suffixIcon: Visibility(
-                        child: GestureDetector(
-                          child: Icon(Icons.clear, color: Colors.blueGrey),
-                          onTap: () {
-                            WidgetsBinding.instance.addPostFrameCallback((_) => _txtController.clear());
-                            setState(() {
-                              _searchString = "";
-                              _searchLyricsResults = null;
-                            });
-                          },
-                        ),
-                        visible: _searchString != "",
-                      ),
-                      hintText: 'Caută...',
-                      focusedBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.black12),
-                      ),
-                      enabledBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.black12),
-                      ),
-                      contentPadding: new EdgeInsets.all(0),
-                    ),
-                    style: new TextStyle(
-                      fontSize: 20.0,
-                    ),
-                    onChanged: (String value) {
-                      setState(() {
-                        _searchString = Song.getSearchable(value);
-                        _searchLyricsResults = null;
-                      });
-                    },
-                    controller: _txtController,
-                  ),
-                ],
-              ),
+                child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      if (constraints.maxWidth < 450) {
+                        return Column(
+                          verticalDirection: VerticalDirection.up,
+                          children: <Widget>[
+                            HorizontalButton(
+                              callback: searchLyrics,
+                              visible: _searchLyricsResults == null &&
+                                  _searchString
+                                      .trim()
+                                      .length > 0,
+                              text: "Caută în versuri",
+                              color: COLOR_DARKER_BLUE,
+                              darkColor: COLOR_LIGHT_BLUE.withOpacity(0.4),
+                            ),
+                            HorizontalButton(
+                              callback: () => _changeBook(ALL_SONGS_BOOK_ID),
+                              visible: _crtBookId != ALL_SONGS_BOOK_ID &&
+                                  _searchString
+                                      .trim()
+                                      .length > 0,
+                              text: "Caută în toate cărțile",
+                              color: COLOR_DARKER_BLUE,
+                              darkColor: COLOR_LIGHT_BLUE.withOpacity(0.4),
+                            ),
+                            TextField(
+                              enableInteractiveSelection: false,
+                              decoration: InputDecoration(
+                                prefixIcon: Icon(Icons.search, color: isDark
+                                    ? COLOR_LIGHT_BLUE
+                                    : COLOR_DARK_BLUE,),
+                                suffixIcon: Visibility(
+                                  child: GestureDetector(
+                                    child: Icon(Icons.clear, color: isDark
+                                        ? COLOR_LIGHT_BLUE
+                                        : COLOR_DARK_BLUE,),
+                                    onTap: () {
+                                      WidgetsBinding.instance
+                                          .addPostFrameCallback((_) =>
+                                          _txtController.clear());
+                                      setState(() {
+                                        _searchString = "";
+                                        _searchLyricsResults = null;
+                                      });
+                                    },
+                                  ),
+                                  visible: _searchString != "",
+                                ),
+                                hintText: 'Caută...',
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                      color: isDark ? COLOR_DARKER_BLUE
+                                          .withOpacity(0.9) : Colors.black12),
+                                  borderRadius: BorderRadius.circular(10.0),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                      color: isDark ? COLOR_DARKER_BLUE
+                                          .withOpacity(0.9) : Colors.black12),
+                                  borderRadius: BorderRadius.circular(10.0),
+                                ),
+                                contentPadding: new EdgeInsets.all(0),
+                              ),
+                              style: new TextStyle(
+                                fontSize: 20.0,
+                              ),
+                              onChanged: (String value) {
+                                setState(() {
+                                  _searchString = Song.getSearchable(value);
+                                  _searchLyricsResults = null;
+                                });
+                              },
+                              controller: _txtController,
+                            ),
+                          ],
+                        );
+                      }
+                      return Row(
+                        children: <Widget>[
+                          Expanded(
+                            child: TextField(
+                              enableInteractiveSelection: false,
+                              decoration: InputDecoration(
+                                prefixIcon: const Icon(
+                                  Icons.search, color: Colors.blueGrey,),
+                                suffixIcon: Visibility(
+                                  child: GestureDetector(
+                                    child: Icon(
+                                        Icons.clear, color: Colors.blueGrey),
+                                    onTap: () {
+                                      WidgetsBinding.instance
+                                          .addPostFrameCallback((_) =>
+                                          _txtController.clear());
+                                      setState(() {
+                                        _searchString = "";
+                                        _searchLyricsResults = null;
+                                      });
+                                    },
+                                  ),
+                                  visible: _searchString != "",
+                                ),
+                                hintText: 'Caută...',
+                                focusedBorder: const OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.black12),
+                                ),
+                                enabledBorder: const OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.black12),
+                                ),
+                                contentPadding: new EdgeInsets.all(0),
+                              ),
+                              style: new TextStyle(
+                                fontSize: 20.0,
+                              ),
+                              onChanged: (String value) {
+                                setState(() {
+                                  _searchString = Song.getSearchable(value);
+                                  _searchLyricsResults = null;
+                                });
+                              },
+                              controller: _txtController,
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
+                            child: HorizontalButton(
+                              callback: searchLyrics,
+                              visible: _searchLyricsResults == null &&
+                                  _searchString
+                                      .trim()
+                                      .length > 0,
+                              text: "Versuri",
+                              color: COLOR_DARKER_BLUE,
+                              darkColor: COLOR_LIGHT_BLUE.withOpacity(0.4),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
+                            child: HorizontalButton(
+                              callback: () => _changeBook(ALL_SONGS_BOOK_ID),
+                              visible: _crtBookId != ALL_SONGS_BOOK_ID &&
+                                  _searchString
+                                      .trim()
+                                      .length > 0,
+                              text: "Toate cărțile",
+                              color: COLOR_DARKER_BLUE,
+                              darkColor: COLOR_LIGHT_BLUE.withOpacity(0.4),
+                            ),
+                          ),
+                        ],
+                      );
+                    }
+                )
             ),
             Expanded(
-              child: _buildSongList(),
+              child: _buildSongList(isDark),
             )
           ],
         ),

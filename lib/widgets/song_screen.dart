@@ -1,16 +1,22 @@
 import 'package:ccc_flutter/constants.dart';
+import 'package:ccc_flutter/favorites.dart';
 import 'package:ccc_flutter/global/theme/bloc/theme_bloc.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:share/share.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wakelock/wakelock.dart';
 import '../book.dart';
 import 'formatted_text.dart';
 
 class SongScreen extends StatefulWidget {
   final Song song;
+  final bool isFavorite;
+  final Function setFavorite;
 
-  SongScreen({Key key, @required this.song}) : super(key: key);
+  SongScreen({Key key, @required this.song, this.isFavorite, this.setFavorite})
+      : super(key: key);
 
   @override
   _SongScreenState createState() => _SongScreenState();
@@ -18,6 +24,7 @@ class SongScreen extends StatefulWidget {
 
 class _SongScreenState extends State<SongScreen> {
   double _textSize;
+  bool _isFavorite;
   final k = 1.2;
 
   static const DEFAULT_TEXT_SIZE = 21.0;
@@ -25,6 +32,7 @@ class _SongScreenState extends State<SongScreen> {
   @override
   void initState() {
     super.initState();
+    Wakelock.enable();
     _textSize = DEFAULT_TEXT_SIZE;
     SharedPreferences.getInstance()
         .then((prefs) {
@@ -32,6 +40,20 @@ class _SongScreenState extends State<SongScreen> {
         _textSize = prefs.getDouble(PREFS_TEXT_SIZE_KEY) ?? DEFAULT_TEXT_SIZE;
       });
     });
+    _isFavorite = widget.isFavorite ?? false;
+    checkIfIsFavorite(widget.song.getId())
+        .then((result) =>
+    {
+      setState(() {
+        _isFavorite = result;
+      })
+    });
+  }
+
+  @override
+  void dispose() {
+    Wakelock.disable();
+    super.dispose();
   }
 
   @override
@@ -43,7 +65,11 @@ class _SongScreenState extends State<SongScreen> {
 
     final _textFont = TextStyle(
       fontSize: _textSize * k - (k-1) * 20.0,
-      color: Theme.of(context).textTheme.title.color,
+      color: Theme
+          .of(context)
+          .textTheme
+          .headline6
+          .color,
     );
 
     final _titleWidget = Text(
@@ -51,6 +77,10 @@ class _SongScreenState extends State<SongScreen> {
       overflow: TextOverflow.ellipsis,
       style: _titleFont,
     );
+
+    final isDark = Theme
+        .of(context)
+        .brightness == Brightness.dark;
 
     final Map<String, TextStyle> _lyricsFormatting = {
       r"[0-9]+\.": TextStyle(fontWeight: FontWeight.bold),
@@ -75,7 +105,7 @@ class _SongScreenState extends State<SongScreen> {
                       });
                     });
                   },
-                  iconSize: 40.0,
+                  iconSize: 30.0,
                 ),
                 IconButton(
                   icon: Icon(Icons.zoom_out),
@@ -88,7 +118,30 @@ class _SongScreenState extends State<SongScreen> {
                       });
                     });
                   },
-                  iconSize: 40.0,
+                  iconSize: 30.0,
+                ),
+                IconButton(
+                  icon: _isFavorite
+                      ? Icon(Icons.star,
+                    color: isDark ? COLOR_DARK_FAVORITE : COLOR_FAVORITE,)
+                      : Icon(Icons.star_border),
+                  onPressed: () {
+                    setState(() {
+                      _isFavorite = !_isFavorite;
+                      setFavorite(widget.song.getId(), _isFavorite);
+                      widget.setFavorite(widget.song.getId(), _isFavorite);
+                    });
+                  },
+                  iconSize: 30.0,
+                ),
+                IconButton(
+                  icon: Icon(Icons.share),
+                  onPressed: () {
+                    Share.share(
+                      widget.song.text,
+                    );
+                  },
+                  iconSize: 30.0,
                 ),
                 Padding(
                   child: IconButton(
@@ -96,9 +149,9 @@ class _SongScreenState extends State<SongScreen> {
                     onPressed: () {
                       BlocProvider.of<ThemeBloc>(context).add(ThemeChanged());
                     },
-                    iconSize: 40.0,
+                    iconSize: 30.0,
                   ),
-                  padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                  padding: EdgeInsets.fromLTRB(0, 0, 5, 0),
                 )
               ],
             ),

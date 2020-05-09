@@ -20,13 +20,18 @@ class SideMenu extends StatelessWidget {
                 style: TextStyle(color: Colors.white, fontSize: 25, fontWeight: FontWeight.w800),
               ),
               decoration: BoxDecoration(
-                color: COLOR_DARK_BLUE,
+                color: COLOR_DARKER_BLUE,
               ),
             ),
           ),
           ListTile(
             leading: Icon(Icons.sync),
-            title: Text('Actualizare cântări'),
+            title: Text(
+              'Actualizare cântări',
+              style: TextStyle(
+                fontSize: 20,
+              ),
+            ),
             onTap: syncBooks,
           ),
         ],

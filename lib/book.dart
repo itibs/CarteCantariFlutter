@@ -7,12 +7,21 @@ import 'package:path_provider/path_provider.dart';
 
 import 'dart:developer' as developer;
 
-const String ALL_SONGS_BOOK_ID="ALL_SONGS";
+const String ALL_SONGS_BOOK_ID = "ALL_SONGS";
+const String FAVORITES_ID = "FAVORITES";
 
 List<Song> allSongs(List<Book> books) {
   return books
       .map((b) => b.songs)
       .expand((i) => i)
+      .toList();
+}
+
+List<Song> favoriteSongs(List<Book> books, Set<String> favorites) {
+  return books
+      .map((b) => b.songs)
+      .expand((i) => i)
+      .where((s) => favorites.contains(s.getId()))
       .toList();
 }
 
@@ -158,7 +167,6 @@ Future<void> storeBooks(List<Book> books, Directory directory) async {
 }
 
 Future<List<Book>> fetchBooksFromFile(Directory directory) async {
-  final directory = await getApplicationDocumentsDirectory();
   final file = File('${directory.path}/books.json');
   final strBooksJson = await file.readAsString();
 
