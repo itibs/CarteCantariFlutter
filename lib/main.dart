@@ -26,6 +26,7 @@ class MyApp extends StatelessWidget {
           return MaterialApp(
             title: 'Carte Cantari',
             theme: state.themeData,
+            debugShowCheckedModeBanner: false,
             home: MyHomePage(),
           );
         },
@@ -209,9 +210,13 @@ class _MyHomePageState extends State<MyHomePage> {
       style: numFont,
     );
 
-    Widget txtTitle = Text(
-      song.title,
-      style: songTitleFont,
+    Widget txtTitle = Flexible(
+      child: Text(
+        song.title,
+        style: songTitleFont,
+        overflow: TextOverflow.fade,
+        softWrap: false,
+      )
     );
 
     return ListTile(
