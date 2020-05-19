@@ -20,12 +20,14 @@ class FormattedText extends StatelessWidget {
           onNonMatch: (n) => "$n");
     });
 
-    RegExp tokenIdRegEx = new RegExp(r"^\|([0-9]*)\|(.*)");
+    RegExp tokenIdRegEx = new RegExp(r"^\|([0-9]*)\|");
     final textSpans = parsedText.split("%%%%").map((token) {
       if (token.length > 0 && token[0] == "|") {
         final match = tokenIdRegEx.firstMatch(token);
         return TextSpan(
-          text: match.group(2),
+          text: token.substring(match
+              .group(0)
+              .length),
           style: stylesList[int.parse(match.group(1))].value,
         );
       } else {
