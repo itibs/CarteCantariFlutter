@@ -47,11 +47,34 @@ class Book {
     return book;
   }
 
+  factory Book.titlesFromJson(Map<String, dynamic> json) {
+    var book = Book(
+      name: json['name'],
+      id: json['id'],
+    );
+
+    if (json['songs'] != null) {
+      book.songs = (json['songs'] as List)
+          .map((s) => Song.titlesFromJson(s, book))
+          .toList();
+    }
+
+    return book;
+  }
+
   Map<String, dynamic> toJson() {
     return {
       "id": id,
       "name": name,
       "songs": songs.map((s) => s.toJson()).toList(),
+    };
+  }
+
+  Map<String, dynamic> titlesToJson() {
+    return {
+      "id": id,
+      "name": name,
+      "songs": songs.map((s) => s.titlesToJson()).toList(),
     };
   }
 }
@@ -109,11 +132,37 @@ class Song implements Comparable<Song> {
     );
   }
 
+  factory Song.titlesFromJson(Map<String, dynamic> json, Book book) {
+    var title = json['title'];
+    var number = json['number'] != null ? int.parse(json['number']) : null;
+    var text = "";
+    var searchableTitle = book.id + " " + (number != null ? number.toString() : "") + " " + title;
+    searchableTitle = getSearchable(searchableTitle);
+    final searchableText = "";
+
+    return Song(
+      book: book,
+      title: title,
+      number: number,
+      text: text,
+      searchableTitle: searchableTitle,
+      searchableText: searchableText,
+    );
+  }
+
   Map<String, dynamic> toJson() {
     final songJson = {
       'title': title,
       'number': number?.toString(),
       'text': text,
+    };
+    return songJson;
+  }
+
+  Map<String, dynamic> titlesToJson() {
+    final songJson = {
+      'title': title,
+      'number': number?.toString(),
     };
     return songJson;
   }
@@ -137,8 +186,10 @@ class Song implements Comparable<Song> {
 
 Stream<Book> fetchBooks() async* {
   // verify if existing files
+  final stopwatch = Stopwatch()..start();
   final directory = await getApplicationDocumentsDirectory();
-  final file = File('${directory.path}/books.json');
+  developer.log('getApplicationDocumentsDirectory() executed in ${stopwatch.elapsed}');
+  final file = File('${directory.path}/books_song_titles.json');
   if (!(await file.exists())) {
     // return assets for fast retrieval
     for (var book in await fetchBooksFromAssets()) {
@@ -150,30 +201,52 @@ Stream<Book> fetchBooks() async* {
       yield book;
     }
   } else { // file exists
+    stopwatch.reset();
     for (var book in await fetchBooksFromFile(directory)) {
       yield book;
     }
+
+    developer.log('fetchBooksFromFile() executed in ${stopwatch.elapsed}');
   }
 }
 
 Future<void> storeBooks(List<Book> books, Directory directory) async {
-  final file = File('${directory.path}/books.json');
-  final booksJson = books
+  var file = File('${directory.path}/books_song_titles.json');
+  var booksJson = books
+      .map((book) => book.titlesToJson())
+      .toList();
+  var strBooksJson = json.encode(booksJson);
+  await file.writeAsString(strBooksJson);
+  file = File('${directory.path}/books.json');
+  booksJson = books
       .map((book) => book.toJson())
       .toList();
-  final strBooksJson = json.encode(booksJson);
+  strBooksJson = json.encode(booksJson);
   await file.writeAsString(strBooksJson);
   developer.log("${DateTime.now()} Stored books in file");
 }
 
 Future<List<Book>> fetchBooksFromFile(Directory directory) async {
-  final file = File('${directory.path}/books.json');
-  final strBooksJson = await file.readAsString();
+  var file = File('${directory.path}/books_song_titles.json');
+  var strBooksJson = await file.readAsString();
 
   final books = (json.decode(strBooksJson) as List)
-      .map((bookJson) => Book.fromJson(bookJson))
+      .map((bookJson) => Book.titlesFromJson(bookJson))
       .toList();
   developer.log("${DateTime.now()} Loaded books in file");
+  file = File('${directory.path}/books.json');
+  file.readAsString()
+    .then((strBooksJson) {
+      final fullBooks = (json.decode(strBooksJson) as List);
+      developer.log("Number of full books: ${fullBooks.length}");
+      fullBooks.forEach((bookJson){
+            final fullBook = Book.fromJson(bookJson);
+            developer.log("Loading songs for book ${fullBook.id}");
+            books.firstWhere((book) => book.id == fullBook.id)
+              .songs = fullBook.songs;
+            developer.log("Loaded songs for book ${fullBook.id}");
+          });
+    });
   return books;
 }
 

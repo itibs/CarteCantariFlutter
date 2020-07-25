@@ -249,7 +249,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    developer.log("${DateTime.now()} running build ${_books.length} books");
     final books = getBooks();
 
     final isDark = Theme
