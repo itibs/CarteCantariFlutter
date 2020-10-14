@@ -6,4 +6,7 @@
              Flutter draws its first frame -->
         <item name="android:windowBackground">@drawable/ic_cartecantarisplash</item>
     </style>
+    <style name="NormalTheme" parent="@android:style/Theme.Black.NoTitleBar">
+        <item name="android:windowBackground">@drawable/ic_cartecantarisplash</item>
+    </style>
 </resources>

@@ -8,7 +8,7 @@ import 'package:share/share.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wakelock/wakelock.dart';
 
-import '../book.dart';
+import '../../book.dart';
 import 'formatted_text.dart';
 
 class SongScreen extends StatefulWidget {
@@ -35,20 +35,17 @@ class _SongScreenState extends State<SongScreen> {
     super.initState();
     Wakelock.enable();
     _textSize = DEFAULT_TEXT_SIZE;
-    SharedPreferences.getInstance()
-        .then((prefs) {
+    SharedPreferences.getInstance().then((prefs) {
       setState(() {
         _textSize = prefs.getDouble(PREFS_TEXT_SIZE_KEY) ?? DEFAULT_TEXT_SIZE;
       });
     });
     _isFavorite = widget.isFavorite ?? false;
-    checkIfIsFavorite(widget.song.getId())
-        .then((result) =>
-    {
-      setState(() {
-        _isFavorite = result;
-      })
-    });
+    checkIfIsFavorite(widget.song.getId()).then((result) => {
+          setState(() {
+            _isFavorite = result;
+          })
+        });
   }
 
   @override
@@ -65,12 +62,8 @@ class _SongScreenState extends State<SongScreen> {
     );
 
     final _textFont = TextStyle(
-      fontSize: _textSize * k - (k-1) * 20.0,
-      color: Theme
-          .of(context)
-          .textTheme
-          .headline6
-          .color,
+      fontSize: _textSize * k - (k - 1) * 20.0,
+      color: Theme.of(context).textTheme.headline6.color,
     );
 
     final _titleWidget = Text(
@@ -79,114 +72,114 @@ class _SongScreenState extends State<SongScreen> {
       style: _titleFont,
     );
 
-    final isDark = Theme
-        .of(context)
-        .brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final Map<String, TextStyle> _lyricsFormatting = {
       r"[0-9]+\.": TextStyle(fontWeight: FontWeight.bold),
-      r"(Refren|R\b[^ăâîșțĂÂÎȘȚ])": TextStyle(fontWeight: FontWeight.bold, fontStyle: FontStyle.italic),
-      r"[^0-9%\n]*\(bis\)": TextStyle(
-          fontWeight: FontWeight.w500, fontStyle: FontStyle.italic),
+      r"(Refren|R\b[^ăâîșțĂÂÎȘȚ])":
+          TextStyle(fontWeight: FontWeight.bold, fontStyle: FontStyle.italic),
+      r"[^0-9%\n]*\(bis\)":
+          TextStyle(fontWeight: FontWeight.w500, fontStyle: FontStyle.italic),
     };
 
     return OrientationBuilder(
       builder: (context, orientation) {
         return Scaffold(
-            appBar: AppBar(
-              title: orientation == Orientation.landscape ? _titleWidget : Container(),
-              actions: <Widget>[
-                IconButton(
-                  icon: Icon(Icons.zoom_in),
-                  onPressed: () {
-                    setState(() {
-                      _textSize += 1;
-                      SharedPreferences.getInstance()
-                          .then((prefs) {
-                        prefs.setDouble(PREFS_TEXT_SIZE_KEY, _textSize);
-                      });
+          appBar: AppBar(
+            title: orientation == Orientation.landscape
+                ? _titleWidget
+                : Container(),
+            actions: <Widget>[
+              IconButton(
+                icon: Icon(Icons.zoom_in),
+                onPressed: () {
+                  setState(() {
+                    _textSize += 1;
+                    SharedPreferences.getInstance().then((prefs) {
+                      prefs.setDouble(PREFS_TEXT_SIZE_KEY, _textSize);
                     });
-                  },
-                  iconSize: 30.0,
-                ),
-                IconButton(
-                  icon: Icon(Icons.zoom_out),
-                  onPressed: () {
-                    setState(() {
-                      _textSize -= 1;
-                      SharedPreferences.getInstance()
-                          .then((prefs) {
-                        prefs.setDouble(PREFS_TEXT_SIZE_KEY, _textSize);
-                      });
+                  });
+                },
+                iconSize: 30.0,
+              ),
+              IconButton(
+                icon: Icon(Icons.zoom_out),
+                onPressed: () {
+                  setState(() {
+                    _textSize -= 1;
+                    SharedPreferences.getInstance().then((prefs) {
+                      prefs.setDouble(PREFS_TEXT_SIZE_KEY, _textSize);
                     });
-                  },
-                  iconSize: 30.0,
-                ),
-                IconButton(
-                  icon: _isFavorite
-                      ? Icon(Icons.star,
-                    color: isDark ? COLOR_DARK_FAVORITE : COLOR_FAVORITE,)
-                      : Icon(Icons.star_border),
+                  });
+                },
+                iconSize: 30.0,
+              ),
+              IconButton(
+                icon: _isFavorite
+                    ? Icon(
+                        Icons.star,
+                        color: isDark ? COLOR_DARK_FAVORITE : COLOR_FAVORITE,
+                      )
+                    : Icon(Icons.star_border),
+                onPressed: () {
+                  setState(() {
+                    _isFavorite = !_isFavorite;
+                    setFavorite(widget.song.getId(), _isFavorite);
+                    widget.setFavorite(widget.song.getId(), _isFavorite);
+                  });
+                },
+                iconSize: 30.0,
+              ),
+              IconButton(
+                icon: Icon(Icons.share),
+                onPressed: () {
+                  Share.share(
+                    widget.song.text,
+                  );
+                },
+                iconSize: 30.0,
+              ),
+              Padding(
+                child: IconButton(
+                  icon: Icon(Icons.tonality),
                   onPressed: () {
-                    setState(() {
-                      _isFavorite = !_isFavorite;
-                      setFavorite(widget.song.getId(), _isFavorite);
-                      widget.setFavorite(widget.song.getId(), _isFavorite);
-                    });
+                    BlocProvider.of<ThemeBloc>(context).add(ThemeChanged());
                   },
                   iconSize: 30.0,
                 ),
-                IconButton(
-                  icon: Icon(Icons.share),
-                  onPressed: () {
-                    Share.share(
-                      widget.song.text,
-                    );
-                  },
-                  iconSize: 30.0,
-                ),
-                Padding(
-                  child: IconButton(
-                    icon: Icon(Icons.tonality),
-                    onPressed: () {
-                      BlocProvider.of<ThemeBloc>(context).add(ThemeChanged());
-                    },
-                    iconSize: 30.0,
-                  ),
-                  padding: EdgeInsets.fromLTRB(0, 0, 5, 0),
-                )
-              ],
-            ),
-            body: Column(
-              children: <Widget>[
-                orientation == Orientation.portrait ?
-                SizedBox(
-                  width: double.infinity,
-                  child: Container(
-                    child: _titleWidget,
-                    padding: EdgeInsets.all(15),
-                    alignment: Alignment(0.0, 0.0),
-                    decoration: BoxDecoration(
-                        border: Border(
-                            bottom: BorderSide(color: Theme.of(context).dividerColor)
-                        )
-                    ),
-                  ),
-                ) :
-                Container(),
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: Padding(
-                      padding: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
-                      child: FormattedText(
+                padding: EdgeInsets.fromLTRB(0, 0, 5, 0),
+              )
+            ],
+          ),
+          body: Column(
+            children: <Widget>[
+              orientation == Orientation.portrait
+                  ? SizedBox(
+                      width: double.infinity,
+                      child: Container(
+                        child: _titleWidget,
+                        padding: EdgeInsets.all(15),
+                        alignment: Alignment(0.0, 0.0),
+                        decoration: BoxDecoration(
+                            border: Border(
+                                bottom: BorderSide(
+                                    color: Theme.of(context).dividerColor))),
+                      ),
+                    )
+                  : Container(),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
+                    child: FormattedText(
                         text: widget.song.text,
                         style: _textFont,
                         stylesMap: _lyricsFormatting),
-                    ),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
+          ),
 //            bottomNavigationBar: BottomAppBar(
 //              child: Row(
 //                mainAxisSize: MainAxisSize.max,
