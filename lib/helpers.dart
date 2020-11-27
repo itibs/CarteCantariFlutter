@@ -21,14 +21,29 @@ MaterialColor createMaterialColor(Color color) {
   return MaterialColor(color.value, swatch);
 }
 
+String getSearchable(String s) {
+  s = s.toLowerCase();
+  s = s
+      .replaceAll(new RegExp(r"[ăâ]"), "a")
+      .replaceAll(new RegExp(r"[îÎ]"), "i")
+      .replaceAll(new RegExp(r"[țţ]"), "t")
+      .replaceAll(new RegExp(r"[șş]"), "s")
+      .replaceAll(new RegExp(r"[^a-z0-9 ]"), " ")
+      .split(new RegExp(r" +"))
+      .join(" ")
+      .trim();
+
+  return s;
+}
+
 RichText createRichText(
-    String text,
-    TextStyle style,
-    Map<String, TextStyle> stylesMap,
+  String text,
+  TextStyle style,
+  Map<String, TextStyle> stylesMap,
 ) {
   final stylesList = stylesMap.entries
-    .map((entry) => MapEntry(new RegExp(entry.key), entry.value))
-    .toList();
+      .map((entry) => MapEntry(new RegExp(entry.key), entry.value))
+      .toList();
 
   stylesList.asMap().forEach((index, entry) {
     text = text.splitMapJoin(entry.key,

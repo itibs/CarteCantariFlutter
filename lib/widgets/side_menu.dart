@@ -17,7 +17,10 @@ class SideMenu extends StatelessWidget {
             child: DrawerHeader(
               child: Text(
                 'Carte Cântări Carol',
-                style: TextStyle(color: Colors.white, fontSize: 25, fontWeight: FontWeight.w800),
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 25,
+                    fontWeight: FontWeight.w800),
               ),
               decoration: BoxDecoration(
                 color: COLOR_DARKER_BLUE,

@@ -1,5 +1,10 @@
+import 'package:ccc_flutter/blocs/theme/theme_bloc.dart';
 import 'package:ccc_flutter/constants.dart';
-import 'package:ccc_flutter/global/theme/app_themes.dart';
+import 'package:ccc_flutter/blocs/theme/app_themes.dart';
+import 'package:ccc_flutter/helpers.dart';
+import 'package:ccc_flutter/models/song.dart';
+import 'package:ccc_flutter/models/song_summary.dart';
+import 'package:ccc_flutter/services/book_service.dart';
 import 'package:ccc_flutter/widgets/main_screen/horizontal_button.dart';
 import 'package:ccc_flutter/widgets/side_menu.dart';
 import 'package:flutter/cupertino.dart';
@@ -7,9 +12,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../book.dart';
+import '../../models/book.dart';
 import '../../favorites.dart';
-import '../../global/theme/bloc/theme_bloc.dart';
 import '../song_screen/song_screen.dart';
 import 'dart:async';
 import 'dart:developer' as developer;
@@ -24,36 +28,19 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   final _txtController = TextEditingController();
   var _books = <Book>[];
+  var _songs = Future(() => Set<Song>());
   var _crtBookId = ALL_SONGS_BOOK_ID;
   var _searchString = "";
   var _favorites = Set<String>();
-  List<Song> _searchLyricsResults;
+  List<SongSummary> _searchLyricsResults;
+  BookService _bookService;
 
-  List<Book> getBooks() {
-    final _allSongs = allSongs(_books);
-    final _favSongs =
-        _allSongs.where((s) => _favorites.contains(s.getId())).toList();
-    final allSongsBook = Book(
-      name: "Toate cântările",
-      id: ALL_SONGS_BOOK_ID,
-    )..songs = _allSongs;
-    final favoritesBook = Book(
-      name: "Lista mea",
-      id: FAVORITES_ID,
-    )..songs = _favSongs;
-    return []
-      ..add(allSongsBook)
-      ..addAll(_books)
-      ..add(favoritesBook);
+  _MainScreenState() {
+    _bookService = new BookService();
   }
 
   String getBookTitleById(String bookId) {
-    if (bookId == ALL_SONGS_BOOK_ID) {
-      return "Toate cântările";
-    } else if (bookId == FAVORITES_ID) {
-      return "Lista mea";
-    }
-    return _books.firstWhere((book) => book.id == bookId).name;
+    return _books.firstWhere((book) => book.id == bookId).title;
   }
 
   Future<void> loadFavorites() async {
@@ -63,45 +50,28 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
-  Future<void> loadBooks() async {
-    await for (var book in fetchBooks()) {
-      developer.log("${DateTime.now()} received ${book.id}");
-      if (_books.where((b) => b.id == book.id).length > 0) {
-        setState(() {
-          _books = _books.map((b) => (b.id == book.id) ? book : b).toList();
-        });
-      } else {
-        setState(() {
-          _books = [..._books, book];
-        });
-      }
+  Future<void> loadBooks({bool forceResync = false}) async {
+    await for (var bookPackage
+        in _bookService.getBookPackage(forceResync: forceResync)) {
+      setState(() {
+        _books = bookPackage.books;
+        _songs = bookPackage.songs;
+      });
     }
   }
 
   Future<void> syncBooks() async {
-    await for (var book in fetchBooksFromServer()) {
-      developer.log("${DateTime.now()} received ${book.id}");
-      if (_books.where((b) => b.id == book.id).length > 0) {
-        setState(() {
-          _books = _books.map((b) => (b.id == book.id) ? book : b).toList();
-        });
-      } else {
-        setState(() {
-          _books = [..._books, book];
-        });
-      }
-    }
+    await loadBooks(forceResync: true);
   }
 
-  void searchLyrics() {
-    final books = getBooks();
-    final List<Song> songs = books.firstWhere((b) => b.id == _crtBookId).songs;
-    final filteredSongs = songs
-        .where((Song song) =>
-            _searchString == "" ||
-            song.searchableTitle.contains(_searchString) ||
-            song.searchableText.contains(_searchString))
-        .toList();
+  void searchLyrics() async {
+    final songs = _books.firstWhere((b) => b.id == _crtBookId).songSummaries;
+    final fullSongs = await _songs;
+    final filteredSongs = songs.where((SongSummary song) {
+      return _searchString == "" ||
+          song.searchableTitle.contains(_searchString) ||
+          fullSongs.lookup(song).searchableText.contains(_searchString);
+    }).toList();
     setState(() {
       _searchLyricsResults = filteredSongs;
     });
@@ -116,18 +86,18 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
-  List<Song> getFilteredSongs() {
-    final books = getBooks();
-    if (books.length == 0) {
+  List<SongSummary> getFilteredSongs() {
+    if (_books.length == 0) {
       return [];
     }
-    final List<Song> songs = books.firstWhere((b) => b.id == _crtBookId).songs;
+    final List<SongSummary> songs =
+        _books.firstWhere((b) => b.id == _crtBookId).songSummaries;
     final numberSongs = songs
-        .where((Song song) => song.number.toString() == _searchString)
+        .where((SongSummary song) => song.number.toString() == _searchString)
         .toList();
 
     final otherSongs = songs
-        .where((Song song) =>
+        .where((SongSummary song) =>
             song.number.toString() != _searchString &&
             (_searchString == "" ||
                 song.searchableTitle.contains(_searchString)))
@@ -159,7 +129,7 @@ class _MainScreenState extends State<MainScreen> {
         });
   }
 
-  Widget _buildRow(Song song, bool isDark) {
+  Widget _buildRow(SongSummary song, bool isDark) {
     final numFont = TextStyle(
       fontSize: 20.0,
       fontWeight: FontWeight.w900,
@@ -172,10 +142,7 @@ class _MainScreenState extends State<MainScreen> {
     );
 
     Widget txtNum = Text(
-      song.book.id +
-          ' ' +
-          (song.number != null ? song.number.toString() : '') +
-          ' ',
+      song.bookAndNum + " ",
       style: numFont,
     );
 
@@ -191,12 +158,13 @@ class _MainScreenState extends State<MainScreen> {
       title: Row(
         children: [txtNum, txtTitle],
       ),
-      onTap: () {
+      onTap: () async {
+        final fullSongs = await _songs;
         Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => SongScreen(
-                song: song,
+                song: fullSongs.lookup(song),
                 setFavorite: (songId, value) {
                   setState(() {
                     if (value) {
@@ -215,8 +183,6 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final books = getBooks();
-
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
@@ -229,7 +195,7 @@ class _MainScreenState extends State<MainScreen> {
           dropdownColor: Theme.of(context).primaryColor,
           iconEnabledColor: Theme.of(context).primaryTextTheme.headline6.color,
           onChanged: _changeBook,
-          items: books.map((Book book) {
+          items: _books.map((Book book) {
             return DropdownMenuItem<String>(
                 value: book.id,
                 child: Row(
@@ -342,7 +308,7 @@ class _MainScreenState extends State<MainScreen> {
                         ),
                         onChanged: (String value) {
                           setState(() {
-                            _searchString = Song.getSearchable(value);
+                            _searchString = getSearchable(value);
                             _searchLyricsResults = null;
                           });
                         },
@@ -389,7 +355,7 @@ class _MainScreenState extends State<MainScreen> {
                         ),
                         onChanged: (String value) {
                           setState(() {
-                            _searchString = Song.getSearchable(value);
+                            _searchString = getSearchable(value);
                             _searchLyricsResults = null;
                           });
                         },

@@ -1,6 +1,7 @@
+import 'package:ccc_flutter/blocs/theme/theme_bloc.dart';
 import 'package:ccc_flutter/constants.dart';
 import 'package:ccc_flutter/favorites.dart';
-import 'package:ccc_flutter/global/theme/bloc/theme_bloc.dart';
+import 'package:ccc_flutter/models/song.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,8 +9,7 @@ import 'package:share/share.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wakelock/wakelock.dart';
 
-import '../../book.dart';
-import 'formatted_text.dart';
+import 'song_body.dart';
 
 class SongScreen extends StatefulWidget {
   final Song song;
@@ -26,9 +26,9 @@ class SongScreen extends StatefulWidget {
 class _SongScreenState extends State<SongScreen> {
   double _textSize;
   bool _isFavorite;
-  final k = 1.2;
 
   static const DEFAULT_TEXT_SIZE = 21.0;
+  static const k = 1.2;
 
   @override
   void initState() {
@@ -41,7 +41,7 @@ class _SongScreenState extends State<SongScreen> {
       });
     });
     _isFavorite = widget.isFavorite ?? false;
-    checkIfIsFavorite(widget.song.getId()).then((result) => {
+    checkIfIsFavorite(widget.song).then((result) => {
           setState(() {
             _isFavorite = result;
           })
@@ -61,11 +61,6 @@ class _SongScreenState extends State<SongScreen> {
       fontWeight: FontWeight.bold,
     );
 
-    final _textFont = TextStyle(
-      fontSize: _textSize * k - (k - 1) * 20.0,
-      color: Theme.of(context).textTheme.headline6.color,
-    );
-
     final _titleWidget = Text(
       widget.song.fullTitle,
       overflow: TextOverflow.ellipsis,
@@ -73,14 +68,6 @@ class _SongScreenState extends State<SongScreen> {
     );
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    final Map<String, TextStyle> _lyricsFormatting = {
-      r"[0-9]+\.": TextStyle(fontWeight: FontWeight.bold),
-      r"(Refren|R\b[^ăâîșțĂÂÎȘȚ])":
-          TextStyle(fontWeight: FontWeight.bold, fontStyle: FontStyle.italic),
-      r"[^0-9%\n]*\(bis\)":
-          TextStyle(fontWeight: FontWeight.w500, fontStyle: FontStyle.italic),
-    };
 
     return OrientationBuilder(
       builder: (context, orientation) {
@@ -124,8 +111,8 @@ class _SongScreenState extends State<SongScreen> {
                 onPressed: () {
                   setState(() {
                     _isFavorite = !_isFavorite;
-                    setFavorite(widget.song.getId(), _isFavorite);
-                    widget.setFavorite(widget.song.getId(), _isFavorite);
+                    setFavorite(widget.song.id, _isFavorite);
+                    widget.setFavorite(widget.song.id, _isFavorite);
                   });
                 },
                 iconSize: 30.0,
@@ -169,12 +156,9 @@ class _SongScreenState extends State<SongScreen> {
                   : Container(),
               Expanded(
                 child: SingleChildScrollView(
-                  child: Padding(
-                    padding: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
-                    child: FormattedText(
-                        text: widget.song.text,
-                        style: _textFont,
-                        stylesMap: _lyricsFormatting),
+                  child: SongBody(
+                    song: widget.song,
+                    textSize: _textSize * k - (k - 1) * 20.0,
                   ),
                 ),
               ),
