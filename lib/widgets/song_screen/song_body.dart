@@ -53,7 +53,7 @@ class SongBody extends StatelessWidget {
     if (song.composer != null) {
       metaFields.add("MUZICĂ: ${song.composer}");
     }
-    if (song.composer != null) {
+    if (song.originalTitle != null) {
       metaFields.add("Titlu original: ${song.originalTitle}");
     }
     if (song.references != null) {

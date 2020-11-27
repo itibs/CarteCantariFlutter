@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:ccc_flutter/models/book_package.dart';
 import 'package:ccc_flutter/repositories/book_repository/book_asset_repository.dart';
 import 'package:ccc_flutter/repositories/book_repository/book_file_repository.dart';
 import 'package:ccc_flutter/repositories/book_repository/book_server_repository.dart';
+import 'package:path_provider/path_provider.dart';
 
 import 'book_repository.dart';
 
@@ -11,15 +14,24 @@ class BookMobileRepository implements IBookRepository {
   BookAssetRepository _bookAssetRepository;
   BookFileRepository _bookFileRepository;
   BookServerRepository _bookServerRepository;
+  Future<Directory> _directory;
+  Future<bool> _fileExists;
 
   BookMobileRepository(
       {BookAssetRepository bookAssetRepository,
       BookFileRepository bookFileRepository,
-      BookServerRepository bookServerRepository})
+      BookServerRepository bookServerRepository,
+      Future<Directory> directory})
       : _bookAssetRepository = bookAssetRepository ?? new BookAssetRepository(),
         _bookFileRepository = bookFileRepository ?? new BookFileRepository(),
         _bookServerRepository =
-            bookServerRepository ?? new BookServerRepository();
+            bookServerRepository ?? new BookServerRepository(),
+        _directory = directory ?? getApplicationDocumentsDirectory() {
+    _fileExists = _directory.then((dir) {
+      final file = File('${dir.path}/$BOOKS_FILE');
+      return file.exists();
+    });
+  }
 
   Stream<BookPackage> getBookPackage({bool forceResync = false}) async* {
     if (forceResync) {
@@ -29,8 +41,11 @@ class BookMobileRepository implements IBookRepository {
 
     try {
       yield* _bookFileRepository.getBookPackage();
-      return;
     } catch (e) {}
+
+    if (await _fileExists) {
+      return;
+    }
 
     try {
       yield* _bookAssetRepository.getBookPackage();
