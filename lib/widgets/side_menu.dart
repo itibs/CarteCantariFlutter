@@ -1,5 +1,7 @@
+import 'package:ccc_flutter/blocs/settings/show_key_signatures/show_key_signatures.dart';
 import 'package:ccc_flutter/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class SideMenu extends StatelessWidget {
   final VoidCallback syncBooks;
@@ -8,6 +10,7 @@ class SideMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final showKeySignatures = context.watch<ShowKeySignaturesCubit>();
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
@@ -37,6 +40,15 @@ class SideMenu extends StatelessWidget {
             ),
             onTap: syncBooks,
           ),
+          CheckboxListTile(
+              title: Text(
+                'Afișează tonalități',
+                style: TextStyle(
+                  fontSize: 20,
+                ),
+              ),
+              value: showKeySignatures.state,
+              onChanged: showKeySignatures.setValue),
         ],
       ),
     );

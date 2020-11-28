@@ -11,17 +11,20 @@ class SongSummary implements Comparable<SongSummary> {
   String references;
   List<String> tags;
   String searchableTitle;
+  String pitch;
 
-  SongSummary(
-      {@required this.bookId,
-      @required this.title,
-      this.number,
-      this.author,
-      this.composer,
-      this.originalTitle,
-      this.references,
-      this.tags,
-      this.searchableTitle});
+  SongSummary({
+    @required this.bookId,
+    @required this.title,
+    this.number,
+    this.author,
+    this.composer,
+    this.originalTitle,
+    this.references,
+    this.pitch,
+    this.tags,
+    this.searchableTitle,
+  });
 
   factory SongSummary.fromJson(Map<String, dynamic> json, {String bookId}) {
     bookId = json['book_id'] ?? bookId;
@@ -31,6 +34,7 @@ class SongSummary implements Comparable<SongSummary> {
     var composer = json['composer'];
     var originalTitle = json['original_title'];
     var references = json['references'];
+    var pitch = json['pitch'];
     var tags = json['tags'];
 
     var strNumber = number != null ? number.toString() : "";
@@ -47,6 +51,7 @@ class SongSummary implements Comparable<SongSummary> {
       composer: composer,
       originalTitle: originalTitle,
       references: references,
+      pitch: pitch,
       tags: tags?.cast<String>(),
       searchableTitle: searchableTitle,
     );

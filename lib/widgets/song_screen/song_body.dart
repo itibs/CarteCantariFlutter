@@ -1,6 +1,8 @@
+import 'package:ccc_flutter/blocs/settings/show_key_signatures/show_key_signatures_cubit.dart';
 import 'package:ccc_flutter/models/song.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'formatted_text.dart';
 
@@ -31,12 +33,15 @@ class SongBody extends StatelessWidget {
       fontStyle: FontStyle.italic,
     );
 
+    final showKeySignatures = context.watch<ShowKeySignaturesCubit>().state;
+
     return Column(
       children: [
         Padding(
             padding: EdgeInsets.fromLTRB(10.0, 20.0, 10.0, 10.0),
             child: RichText(
                 text: TextSpan(children: [
+              showKeySignatures ? getPitchTextSpan(metaTextFont) : TextSpan(),
               getFormattedTextSpan(song.text, textFont, _lyricsFormatting),
               TextSpan(text: "\n\n\n"),
               getMetaFieldsTextSpan(metaTextFont),
@@ -61,5 +66,22 @@ class SongBody extends StatelessWidget {
     }
 
     return TextSpan(text: metaFields.join("\n"), style: style);
+  }
+
+  TextSpan getPitchTextSpan(TextStyle style) {
+    final keySignatureStyle = TextStyle(
+      fontSize: style.fontSize,
+      color: style.color.withAlpha(255),
+      fontWeight: FontWeight.bold,
+    );
+    if (song.pitch != null) {
+      return TextSpan(children: [
+        TextSpan(text: "Tonalitate recomandată: ", style: style),
+        TextSpan(text: "${song.pitch}", style: keySignatureStyle),
+        TextSpan(text: "\n\n\n"),
+      ]);
+    }
+
+    return TextSpan();
   }
 }

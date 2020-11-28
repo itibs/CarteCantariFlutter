@@ -18,6 +18,7 @@ class Song extends SongSummary {
       String composer,
       String originalTitle,
       String references,
+      String pitch,
       List<String> tags,
       @required this.text,
       String searchableTitle,
@@ -30,6 +31,7 @@ class Song extends SongSummary {
             composer: composer,
             originalTitle: originalTitle,
             references: references,
+            pitch: pitch,
             tags: tags);
 
   factory Song.fromJson(Map<String, dynamic> json, {String bookId}) {
@@ -46,6 +48,7 @@ class Song extends SongSummary {
       composer: songSummary.composer,
       originalTitle: songSummary.originalTitle,
       references: songSummary.references,
+      pitch: songSummary.pitch,
       tags: songSummary.tags,
       text: text,
       searchableTitle: songSummary.searchableTitle,
@@ -62,6 +65,7 @@ class Song extends SongSummary {
       'composer': composer,
       'original_title': originalTitle,
       'references': references,
+      'pitch': pitch,
       'tags': tags,
       'text': text,
       'searchable_title': searchableTitle,

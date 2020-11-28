@@ -1,3 +1,4 @@
+import 'package:ccc_flutter/blocs/settings/show_key_signatures/show_key_signatures_cubit.dart';
 import 'package:ccc_flutter/blocs/theme/theme_bloc.dart';
 import 'package:ccc_flutter/constants.dart';
 import 'package:ccc_flutter/blocs/theme/app_themes.dart';
@@ -112,6 +113,9 @@ class _MainScreenState extends State<MainScreen> {
     SharedPreferences.getInstance().then((prefs) {
       BlocProvider.of<ThemeBloc>(context).add(ThemeLoaded(
           theme: AppTheme.values[prefs.getInt(PREFS_APP_THEME_KEY) ?? 0]));
+      context
+          .read<ShowKeySignaturesCubit>()
+          .setValue(prefs.getBool(PREFS_SETTINGS_SHOW_KEY_SIGNATURES) ?? false);
     });
     developer.log("${DateTime.now()} Init state");
     loadBooks();

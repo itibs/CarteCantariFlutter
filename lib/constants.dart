@@ -1,4 +1,5 @@
 library constants;
+
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -20,4 +21,5 @@ final COLOR_DARK_FAVORITE = Colors.yellow[700];
 //final COLOR_DARK_FAVORITE = Colors.red[700];
 
 const PREFS_APP_THEME_KEY = "appTheme";
+const PREFS_SETTINGS_SHOW_KEY_SIGNATURES = "settingsShowKeySignatures";
 const PREFS_TEXT_SIZE_KEY = "textSize";
