@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'formatted_text.dart';
+import 'key_signature.dart';
 
 class SongBody extends StatelessWidget {
   final Song song;
@@ -51,33 +52,53 @@ class SongBody extends StatelessWidget {
   }
 
   TextSpan getMetaFieldsTextSpan(TextStyle style) {
-    var metaFields = [];
+    var metaFields = <TextSpan>[];
+    final metaHeaderStyle = style.copyWith(fontWeight: FontWeight.bold);
     if (song.author != null) {
-      metaFields.add("TEXT: ${song.author}");
+      metaFields.add(TextSpan(children: [
+        TextSpan(text: "Text: ", style: metaHeaderStyle),
+        TextSpan(text: song.author, style: style),
+        TextSpan(text: "\n")
+      ]));
     }
     if (song.composer != null) {
-      metaFields.add("MUZICĂ: ${song.composer}");
+      metaFields.add(TextSpan(children: [
+        TextSpan(text: "Muzică: ", style: metaHeaderStyle),
+        TextSpan(text: song.composer, style: style),
+        TextSpan(text: "\n")
+      ]));
     }
     if (song.originalTitle != null) {
-      metaFields.add("Titlu original: ${song.originalTitle}");
+      metaFields.add(TextSpan(children: [
+        TextSpan(text: "Titlu original: ", style: metaHeaderStyle),
+        TextSpan(text: song.originalTitle, style: style),
+        TextSpan(text: "\n")
+      ]));
     }
     if (song.references != null) {
-      metaFields.add("Referințe biblice: ${song.references}");
+      metaFields.add(TextSpan(children: [
+        TextSpan(text: "Referințe biblice: ", style: metaHeaderStyle),
+        TextSpan(text: song.references, style: style),
+        TextSpan(text: "\n")
+      ]));
     }
 
-    return TextSpan(text: metaFields.join("\n"), style: style);
+    return TextSpan(children: metaFields);
   }
 
   TextSpan getPitchTextSpan(TextStyle style) {
-    final keySignatureStyle = TextStyle(
-      fontSize: style.fontSize,
-      color: style.color.withAlpha(255),
-      fontWeight: FontWeight.bold,
-    );
+    // final keySignatureStyle = TextStyle(
+    //   fontSize: style.fontSize,
+    //   color: style.color.withAlpha(255),
+    //   fontWeight: FontWeight.bold,
+    // );
     if (song.pitch != null) {
       return TextSpan(children: [
         TextSpan(text: "Tonalitate recomandată: ", style: style),
-        TextSpan(text: "${song.pitch}", style: keySignatureStyle),
+        WidgetSpan(
+            //child: KeySignature(pitch: song.pitch, style: keySignatureStyle),
+            child: KeySignature(pitch: song.pitch),
+            alignment: PlaceholderAlignment.middle),
         TextSpan(text: "\n\n\n"),
       ]);
     }

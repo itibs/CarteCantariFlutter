@@ -12,6 +12,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/book.dart';
 import '../../favorites.dart';
@@ -35,6 +36,7 @@ class _MainScreenState extends State<MainScreen> {
   var _favorites = Set<String>();
   List<SongSummary> _searchLyricsResults;
   BookService _bookService;
+  FToast _fToast;
 
   _MainScreenState() {
     _bookService = new BookService();
@@ -51,18 +53,22 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
-  Future<void> loadBooks({bool forceResync = false}) async {
+  Future<bool> loadBooks({bool forceResync = false}) async {
+    var count = 0;
     await for (var bookPackage
         in _bookService.getBookPackage(forceResync: forceResync)) {
+      count++;
       setState(() {
         _books = bookPackage.books;
         _songs = bookPackage.songs;
       });
     }
+
+    return count > 0;
   }
 
-  Future<void> syncBooks() async {
-    await loadBooks(forceResync: true);
+  Future<bool> syncBooks() async {
+    return await loadBooks(forceResync: true);
   }
 
   void searchLyrics() async {
@@ -110,6 +116,10 @@ class _MainScreenState extends State<MainScreen> {
   @override
   void initState() {
     super.initState();
+
+    _fToast = FToast();
+    _fToast.init(context);
+
     SharedPreferences.getInstance().then((prefs) {
       BlocProvider.of<ThemeBloc>(context).add(ThemeLoaded(
           theme: AppTheme.values[prefs.getInt(PREFS_APP_THEME_KEY) ?? 0]));
@@ -137,7 +147,7 @@ class _MainScreenState extends State<MainScreen> {
     final numFont = TextStyle(
       fontSize: 20.0,
       fontWeight: FontWeight.w900,
-      color: isDark ? COLOR_LIGHT_BLUE : COLOR_DARK_BLUE,
+      color: isDark ? COLOR_LIGHT_BLUE : COLOR_DARKER_BLUE,
     );
 
     final songTitleFont = const TextStyle(
@@ -191,7 +201,11 @@ class _MainScreenState extends State<MainScreen> {
 
     return Scaffold(
       drawer: SideMenu(
-        syncBooks: syncBooks,
+        syncBooks: () => syncBooks().then((success) => showToast(
+            success
+                ? "Cântările au fost actualizate"
+                : "A apărut o eroare la actualizare.\nVerifică dacă ai conexiune la internet.",
+            _fToast)),
       ),
       appBar: AppBar(
         title: DropdownButton<String>(
