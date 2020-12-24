@@ -7,7 +7,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:share/share.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wakelock/wakelock.dart';
-
 import '../book.dart';
 import 'formatted_text.dart';
 
@@ -86,8 +85,7 @@ class _SongScreenState extends State<SongScreen> {
     final Map<String, TextStyle> _lyricsFormatting = {
       r"[0-9]+\.": TextStyle(fontWeight: FontWeight.bold),
       r"(Refren|R\b[^ăâîșțĂÂÎȘȚ])": TextStyle(fontWeight: FontWeight.bold, fontStyle: FontStyle.italic),
-      r"[^0-9%\n]*\(bis\)": TextStyle(
-          fontWeight: FontWeight.w500, fontStyle: FontStyle.italic),
+      r"[^0-9].*\bbis\b": TextStyle(fontWeight: FontWeight.w500, fontStyle: FontStyle.italic),
     };
 
     return OrientationBuilder(
