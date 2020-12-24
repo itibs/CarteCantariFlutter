@@ -5,6 +5,8 @@ import 'package:path_provider/path_provider.dart';
 
 import 'dart:developer' as developer;
 
+import 'models/song_summary.dart';
+
 Future<void> setFavorite(String songId, bool value) async {
   final crtFavorites = await fetchFavoritesFromFile();
   if (value) {
@@ -16,9 +18,9 @@ Future<void> setFavorite(String songId, bool value) async {
   await storeFavorites(crtFavorites);
 }
 
-Future<bool> checkIfIsFavorite(String songId) async {
+Future<bool> checkIfIsFavorite(SongSummary song) async {
   final crtFavorites = await fetchFavoritesFromFile();
-  return crtFavorites.contains(songId);
+  return crtFavorites.contains(song.id) || crtFavorites.contains(song.idV1);
 }
 
 Future<void> storeFavorites(Set<String> favorites,

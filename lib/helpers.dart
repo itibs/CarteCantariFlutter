@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 MaterialColor createMaterialColor(Color color) {
   List strengths = <double>[.05];
@@ -21,14 +22,50 @@ MaterialColor createMaterialColor(Color color) {
   return MaterialColor(color.value, swatch);
 }
 
+String getSearchable(String s) {
+  s = s.toLowerCase();
+  s = s
+      .replaceAll(new RegExp(r"[ăâ]"), "a")
+      .replaceAll(new RegExp(r"[îÎ]"), "i")
+      .replaceAll(new RegExp(r"[țţ]"), "t")
+      .replaceAll(new RegExp(r"[șş]"), "s")
+      .replaceAll(new RegExp(r"[^a-z0-9 ]"), " ")
+      .split(new RegExp(r" +"))
+      .join(" ")
+      .trim();
+
+  return s;
+}
+
+void showToast(String toastMessage, FToast fToast) {
+  Widget toast = Container(
+    padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(25.0),
+      color: Colors.grey[850],
+    ),
+    child: Text(
+      toastMessage,
+      style: TextStyle(color: Colors.white, fontSize: 16),
+      textAlign: TextAlign.center,
+    ),
+  );
+
+  fToast.showToast(
+    child: toast,
+    gravity: ToastGravity.BOTTOM,
+    toastDuration: Duration(seconds: 2),
+  );
+}
+
 RichText createRichText(
-    String text,
-    TextStyle style,
-    Map<String, TextStyle> stylesMap,
+  String text,
+  TextStyle style,
+  Map<String, TextStyle> stylesMap,
 ) {
   final stylesList = stylesMap.entries
-    .map((entry) => MapEntry(new RegExp(entry.key), entry.value))
-    .toList();
+      .map((entry) => MapEntry(new RegExp(entry.key), entry.value))
+      .toList();
 
   stylesList.asMap().forEach((index, entry) {
     text = text.splitMapJoin(entry.key,
