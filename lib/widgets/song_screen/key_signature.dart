@@ -55,7 +55,11 @@ class KeySignatureState extends State<KeySignature>
         _animationController.forward();
         pitchSoundService.playChord(widget.pitch);
       },
-      onTapUp: (tapUpDetails) {
+      onTapUp: (_) {
+        _animationController.reset();
+        pitchSoundService.stopChord(widget.pitch);
+      },
+      onTapCancel: () {
         _animationController.reset();
         pitchSoundService.stopChord(widget.pitch);
       },
