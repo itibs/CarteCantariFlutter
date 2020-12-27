@@ -33,7 +33,6 @@ class _MainScreenState extends State<MainScreen> {
   var _songs = Future(() => Set<Song>());
   var _crtBookId = ALL_SONGS_BOOK_ID;
   var _searchString = "";
-  var _favorites = Set<String>();
   List<SongSummary> _searchLyricsResults;
   BookService _bookService;
   FToast _fToast;
@@ -44,13 +43,6 @@ class _MainScreenState extends State<MainScreen> {
 
   String getBookTitleById(String bookId) {
     return _books.firstWhere((book) => book.id == bookId).title;
-  }
-
-  Future<void> loadFavorites() async {
-    final favorites = await fetchFavoritesFromFile();
-    setState(() {
-      _favorites = favorites;
-    });
   }
 
   Future<bool> loadBooks({bool forceResync = false}) async {
@@ -129,7 +121,6 @@ class _MainScreenState extends State<MainScreen> {
     });
     developer.log("${DateTime.now()} Init state");
     loadBooks();
-    loadFavorites();
   }
 
   Widget _buildSongList(bool isDark) {
@@ -179,14 +170,18 @@ class _MainScreenState extends State<MainScreen> {
             MaterialPageRoute(
               builder: (context) => SongScreen(
                 song: fullSongs.lookup(song),
-                setFavorite: (songId, value) {
-                  setState(() {
-                    if (value) {
-                      _favorites.add(songId);
-                    } else {
-                      _favorites.remove(songId);
-                    }
-                  });
+                setFavorite: (favSong, value) {
+                  var favoritesBooks =
+                      _books.where((book) => book.id == FAVORITES_ID).toList();
+                  if (favoritesBooks.isNotEmpty) {
+                    setState(() {
+                      if (value) {
+                        favoritesBooks.first.songSummaries.add(song);
+                      } else {
+                        favoritesBooks.first.songSummaries.remove(song);
+                      }
+                    });
+                  }
                 },
               ),
             ));
