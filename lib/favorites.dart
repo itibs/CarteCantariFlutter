@@ -7,12 +7,17 @@ import 'dart:developer' as developer;
 
 import 'models/song_summary.dart';
 
-Future<void> setFavorite(String songId, bool value) async {
+Future<void> setFavorite(SongSummary song, bool value) async {
   final crtFavorites = await fetchFavoritesFromFile();
   if (value) {
-    crtFavorites.add(songId);
-  } else if (crtFavorites.contains(songId)) {
-    crtFavorites.remove(songId);
+    crtFavorites.add(song.id);
+  } else {
+    if (crtFavorites.contains(song.id)) {
+      crtFavorites.remove(song.id);
+    }
+    if (crtFavorites.contains(song.idV1)) {
+      crtFavorites.remove(song.idV1);
+    }
   }
 
   await storeFavorites(crtFavorites);

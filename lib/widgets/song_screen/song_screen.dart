@@ -111,8 +111,8 @@ class _SongScreenState extends State<SongScreen> {
                 onPressed: () {
                   setState(() {
                     _isFavorite = !_isFavorite;
-                    setFavorite(widget.song.id, _isFavorite);
-                    widget.setFavorite(widget.song.id, _isFavorite);
+                    setFavorite(widget.song, _isFavorite);
+                    widget.setFavorite(widget.song, _isFavorite);
                   });
                 },
                 iconSize: 30.0,

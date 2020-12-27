@@ -3,6 +3,7 @@
 *.moved-aside
 *.pbxuser
 *.perspectivev3
+*.xcbuild
 **/*sync/
 .sconsign.dblite
 .tags*

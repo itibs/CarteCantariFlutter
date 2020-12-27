@@ -1,5 +1,5 @@
-import 'package:ccc_flutter/blocs/settings/show_key_signatures/show_key_signatures.dart';
-import 'package:ccc_flutter/services/pitch_sound_service.dart';
+import 'blocs/settings/show_key_signatures/show_key_signatures.dart';
+import 'services/pitch_sound_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
