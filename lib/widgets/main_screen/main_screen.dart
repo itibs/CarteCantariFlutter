@@ -15,7 +15,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/book.dart';
-import '../../favorites.dart';
 import '../song_screen/song_screen.dart';
 import 'dart:async';
 import 'dart:developer' as developer;
