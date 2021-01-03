@@ -1,10 +1,12 @@
 import 'dart:io';
 
+import 'package:ccc_flutter/constants.dart';
 import 'package:ccc_flutter/models/book_package.dart';
 import 'package:ccc_flutter/repositories/book_repository/book_asset_repository.dart';
 import 'package:ccc_flutter/repositories/book_repository/book_file_repository.dart';
 import 'package:ccc_flutter/repositories/book_repository/book_server_repository.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'book_repository.dart';
 
@@ -44,6 +46,13 @@ class BookMobileRepository implements IBookRepository {
     } catch (e) {}
 
     if (await _fileExists) {
+      // even if file exists, redownload songs on update
+      var prefs = await SharedPreferences.getInstance();
+      var crtVersion = prefs.getInt(PREFS_UPDATE_VERSION) ?? 0;
+      if (crtVersion < LATEST_UPDATE_VERSION) {
+        yield* getBookPackageFromServer();
+      }
+      prefs.setInt(PREFS_UPDATE_VERSION, LATEST_UPDATE_VERSION);
       return;
     }
 

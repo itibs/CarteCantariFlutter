@@ -20,3 +20,6 @@ final COLOR_DARK_FAVORITE = Colors.yellow[700];
 const PREFS_APP_THEME_KEY = "appTheme";
 const PREFS_SETTINGS_SHOW_KEY_SIGNATURES = "settingsShowKeySignatures";
 const PREFS_TEXT_SIZE_KEY = "textSize";
+const PREFS_UPDATE_VERSION = "updateVersion";
+
+const LATEST_UPDATE_VERSION = 1;
