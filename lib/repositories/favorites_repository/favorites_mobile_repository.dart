@@ -1,22 +1,17 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:path_provider/path_provider.dart';
-
 import 'dart:developer' as developer;
 
-abstract class IFavoritesRepository {
-  Future<Set<String>> getFavorites();
-  Future<void> storeFavorites(Set<String> favorites);
-}
+import 'favorites_repository.dart';
 
 const String FAVORITES_FILE = 'favorites.json';
 
-class FavoritesRepository implements IFavoritesRepository {
+class FavoritesMobileRepository implements IFavoritesRepository {
   Future<Directory> _directory;
   Future<File> _file;
 
-  FavoritesRepository({Future<Directory> directory})
+  FavoritesMobileRepository({Future<Directory> directory})
       : _directory = directory ?? getApplicationDocumentsDirectory() {
     _file = Future(() async {
       final directory = await _directory;

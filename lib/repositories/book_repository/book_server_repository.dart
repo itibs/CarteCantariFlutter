@@ -4,6 +4,7 @@ import 'package:ccc_flutter/models/book.dart';
 import 'package:ccc_flutter/models/book_package.dart';
 import 'package:ccc_flutter/models/song.dart';
 import 'package:http/http.dart' as http;
+import 'package:ccc_flutter/constants.dart';
 
 import 'book_repository.dart';
 
@@ -20,8 +21,8 @@ class BookServerRepository implements IBookRepository {
   }
 
   Future<List<Book>> fetchBooksFromServer() async {
-    final response =
-        await http.get('http://185.177.59.158/CarteCantari/books/v2');
+    final url = 'http://$HOSTNAME/CarteCantari/books/v2';
+    final response = await http.get(url);
 
     if (response.statusCode == 200) {
       final books = (json.decode(response.body) as List)
@@ -44,7 +45,7 @@ class BookServerRepository implements IBookRepository {
 
   Future<List<Song>> fetchBookSongsFromServer(String bookId) async {
     final response =
-        await http.get('http://185.177.59.158/CarteCantari/books/' + bookId);
+        await http.get('http://$HOSTNAME/CarteCantari/books/' + bookId);
     if (response.statusCode == 200) {
       Map<String, dynamic> resp = json.decode(response.body);
       return (resp['songs'] as List)

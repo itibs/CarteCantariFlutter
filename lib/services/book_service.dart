@@ -3,7 +3,11 @@ import 'package:ccc_flutter/models/book_package.dart';
 import 'package:ccc_flutter/models/song_summary.dart';
 import 'package:ccc_flutter/repositories/book_repository/book_mobile_repository.dart';
 import 'package:ccc_flutter/repositories/book_repository/book_repository.dart';
-import 'package:ccc_flutter/repositories/favorites_repository.dart';
+import 'package:ccc_flutter/repositories/book_repository/book_server_repository.dart';
+import 'package:ccc_flutter/repositories/favorites_repository/favorites_mobile_repository.dart';
+import 'package:ccc_flutter/repositories/favorites_repository/favorites_repository.dart';
+import 'package:ccc_flutter/repositories/favorites_repository/favorites_web_repository.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class BookService {
   IBookRepository _bookRepository;
@@ -15,9 +19,12 @@ class BookService {
   BookService(
       {IBookRepository bookRepository,
       IFavoritesRepository favoritesRepository})
-      : _bookRepository = bookRepository ?? new BookMobileRepository(),
-        _favoritesRepository =
-            favoritesRepository ?? new FavoritesRepository() {
+      : _bookRepository = bookRepository ??
+            (kIsWeb ? new BookServerRepository() : new BookMobileRepository()),
+        _favoritesRepository = favoritesRepository ??
+            (kIsWeb
+                ? new FavoritesWebRepository()
+                : new FavoritesMobileRepository()) {
     _favoritesFuture = _favoritesRepository.getFavorites();
   }
 
