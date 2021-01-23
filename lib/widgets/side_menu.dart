@@ -5,8 +5,10 @@ import 'package:provider/provider.dart';
 
 class SideMenu extends StatelessWidget {
   final VoidCallback syncBooks;
+  final VoidCallback goToCategories;
 
-  SideMenu({Key key, @required this.syncBooks}) : super(key: key);
+  SideMenu({Key key, @required this.syncBooks, @required this.goToCategories})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -49,6 +51,16 @@ class SideMenu extends StatelessWidget {
               ),
               value: showKeySignatures.state,
               onChanged: showKeySignatures.setValue),
+          ListTile(
+            //leading: Icon(Icons.sync),
+            title: Text(
+              'Cântări pe categorii',
+              style: TextStyle(
+                fontSize: 20,
+              ),
+            ),
+            onTap: goToCategories,
+          ),
         ],
       ),
     );

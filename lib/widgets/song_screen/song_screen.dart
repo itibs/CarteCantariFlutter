@@ -2,6 +2,7 @@ import 'package:ccc_flutter/blocs/theme/theme_bloc.dart';
 import 'package:ccc_flutter/constants.dart';
 import 'package:ccc_flutter/favorites.dart';
 import 'package:ccc_flutter/models/song.dart';
+import 'package:ccc_flutter/models/song_summary.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,10 +14,9 @@ import 'song_body.dart';
 
 class SongScreen extends StatefulWidget {
   final Song song;
-  final bool isFavorite;
-  final Function setFavorite;
+  final void Function(SongSummary, bool) setFavorite;
 
-  SongScreen({Key key, @required this.song, this.isFavorite, this.setFavorite})
+  SongScreen({Key key, @required this.song, this.setFavorite})
       : super(key: key);
 
   @override
@@ -40,7 +40,7 @@ class _SongScreenState extends State<SongScreen> {
         _textSize = prefs.getDouble(PREFS_TEXT_SIZE_KEY) ?? DEFAULT_TEXT_SIZE;
       });
     });
-    _isFavorite = widget.isFavorite ?? false;
+    _isFavorite = false;
     checkIfIsFavorite(widget.song).then((result) => {
           setState(() {
             _isFavorite = result;
