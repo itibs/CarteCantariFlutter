@@ -1,6 +1,5 @@
 import 'package:ccc_flutter/constants.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 class SearchBox extends StatelessWidget {
   final void Function(String) onTextChanged;

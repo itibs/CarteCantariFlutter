@@ -1,6 +1,5 @@
 import 'package:ccc_flutter/blocs/settings/show_key_signatures/show_key_signatures_cubit.dart';
 import 'package:ccc_flutter/models/song.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

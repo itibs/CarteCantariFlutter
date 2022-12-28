@@ -1,7 +1,6 @@
 import 'package:ccc_flutter/constants.dart';
 import 'package:ccc_flutter/models/song_summary.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 class SongList extends StatelessWidget {
   final List<SongSummary> songs;

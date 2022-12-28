@@ -4,7 +4,6 @@ import 'package:ccc_flutter/models/song.dart';
 import 'package:ccc_flutter/widgets/categories_screen/category_songs_screen.dart';
 import 'package:ccc_flutter/widgets/categories_screen/category_list.dart';
 import 'package:ccc_flutter/widgets/common/search_box.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -28,7 +27,7 @@ class CategoriesScreen extends StatefulWidget {
       }
       for (var tag in song.tags) {
         if (!categories.containsKey(tag)) {
-          categories[tag] = new List();
+          categories[tag] = [];
         }
         categories[tag].add(song);
       }

@@ -1,7 +1,5 @@
 library constants;
 
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
 const COLOR_WHITE = Color.fromRGBO(250, 250, 250, 1.0);

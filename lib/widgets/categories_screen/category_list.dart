@@ -1,7 +1,6 @@
 import 'package:ccc_flutter/constants.dart';
 import 'package:ccc_flutter/models/song.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 class CategoryList extends StatelessWidget {
   final Future<void> Function(String category, List<Song> songs) onTap;
