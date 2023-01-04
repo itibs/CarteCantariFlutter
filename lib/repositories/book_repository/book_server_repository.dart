@@ -21,7 +21,7 @@ class BookServerRepository implements IBookRepository {
   }
 
   Future<List<Book>> fetchBooksFromServer() async {
-    final url = 'http://$HOSTNAME/CarteCantari/books/v2';
+    final url = 'https://kfq5qib3ec.execute-api.eu-central-1.amazonaws.com/Prod/books';
     final response = await http.get(Uri.parse(url));
 
     if (response.statusCode == 200) {
@@ -45,7 +45,7 @@ class BookServerRepository implements IBookRepository {
 
   Future<List<Song>> fetchBookSongsFromServer(String bookId) async {
     final response =
-        await http.get(Uri.parse('http://$HOSTNAME/CarteCantari/books/' + bookId));
+        await http.get(Uri.parse('https://kfq5qib3ec.execute-api.eu-central-1.amazonaws.com/Prod/books/' + bookId + "/songs"));
     if (response.statusCode == 200) {
       Map<String, dynamic> resp = json.decode(response.body);
       return (resp['songs'] as List)

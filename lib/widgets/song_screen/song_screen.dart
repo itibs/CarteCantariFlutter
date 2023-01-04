@@ -25,6 +25,7 @@ class SongScreen extends StatefulWidget {
 class _SongScreenState extends State<SongScreen> {
   double _textSize;
   bool _isFavorite;
+  bool _showMusicSheet = false;
 
   static const DEFAULT_TEXT_SIZE = 21.0;
   static const k = 1.2;
@@ -162,6 +163,17 @@ class _SongScreenState extends State<SongScreen> {
                 ),
               ),
             ],
+          ),
+          floatingActionButton: FloatingActionButton(
+            onPressed: () {
+              setState(() {
+                _showMusicSheet = !_showMusicSheet;
+              });
+            },
+            backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+            child: _showMusicSheet
+                ? const Icon(Icons.notes, color: Colors.white)
+                : const Icon(Icons.music_note, color: Colors.white),
           ),
 //            bottomNavigationBar: BottomAppBar(
 //              child: Row(
