@@ -51,16 +51,16 @@ class SideMenu extends StatelessWidget {
               ),
               value: showKeySignatures.state,
               onChanged: showKeySignatures.setValue),
-          ListTile(
-            //leading: Icon(Icons.sync),
-            title: Text(
-              'Cântări pe categorii',
-              style: TextStyle(
-                fontSize: 20,
-              ),
-            ),
-            onTap: goToCategories,
-          ),
+          // ListTile(
+          //   //leading: Icon(Icons.sync),
+          //   title: Text(
+          //     'Cântări pe categorii',
+          //     style: TextStyle(
+          //       fontSize: 20,
+          //     ),
+          //   ),
+          //   onTap: goToCategories,
+          // ),
         ],
       ),
     );
