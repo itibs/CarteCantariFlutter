@@ -13,7 +13,7 @@ class SearchBox extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return TextField(
-      enableInteractiveSelection: false,
+      enableInteractiveSelection: true,
       decoration: InputDecoration(
         prefixIcon: Icon(
           Icons.search,
