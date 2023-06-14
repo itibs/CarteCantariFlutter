@@ -1,13 +1,28 @@
 import 'package:ccc_flutter/constants.dart';
 import 'package:flutter/material.dart';
 
-class SearchBox extends StatelessWidget {
+class SearchBox extends StatefulWidget {
   final void Function(String) onTextChanged;
   final void Function() onClear;
   final TextEditingController txtController;
 
   SearchBox({this.onTextChanged, this.onClear, txtController})
       : this.txtController = txtController ?? new TextEditingController();
+
+  @override
+  SearchBoxState createState() => SearchBoxState();
+}
+
+class SearchBoxState extends State<SearchBox> {
+  String _previousText;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _previousText = widget.txtController.text;
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -27,11 +42,11 @@ class SearchBox extends StatelessWidget {
             ),
             onTap: () {
               WidgetsBinding.instance
-                  .addPostFrameCallback((_) => txtController.clear());
-              onClear();
+                  .addPostFrameCallback((_) => widget.txtController.clear());
+              widget.onClear();
             },
           ),
-          visible: txtController.text != "",
+          visible: widget.txtController.text != "",
         ),
         hintText: 'Caută...',
         focusedBorder: OutlineInputBorder(
@@ -51,8 +66,15 @@ class SearchBox extends StatelessWidget {
       style: new TextStyle(
         fontSize: 20.0,
       ),
-      onChanged: onTextChanged,
-      controller: txtController,
+      onChanged: (newText) {
+        if (newText != _previousText) {
+          widget.onTextChanged(newText);
+          setState(() {
+            _previousText = newText;
+          });
+        }
+      },
+      controller: widget.txtController,
     );
   }
 }
