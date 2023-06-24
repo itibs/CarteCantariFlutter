@@ -3,6 +3,7 @@ import 'package:ccc_flutter/constants.dart';
 import 'package:ccc_flutter/favorites.dart';
 import 'package:ccc_flutter/models/song.dart';
 import 'package:ccc_flutter/models/song_summary.dart';
+import 'package:ccc_flutter/widgets/song_screen/music_sheet_body.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:share/share.dart';
@@ -138,21 +139,21 @@ class _SongScreenState extends State<SongScreen> {
               )
             ],
           ),
-          body: Column(
+          body: _showMusicSheet ? MusicSheetBody(widget.song.musicSheet) : SafeArea(child: Column(
             children: <Widget>[
               orientation == Orientation.portrait
                   ? SizedBox(
-                      width: double.infinity,
-                      child: Container(
-                        child: _titleWidget,
-                        padding: EdgeInsets.all(15),
-                        alignment: Alignment(0.0, 0.0),
-                        decoration: BoxDecoration(
-                            border: Border(
-                                bottom: BorderSide(
-                                    color: Theme.of(context).dividerColor))),
-                      ),
-                    )
+                width: double.infinity,
+                child: Container(
+                  child: _titleWidget,
+                  padding: EdgeInsets.all(15),
+                  alignment: Alignment(0.0, 0.0),
+                  decoration: BoxDecoration(
+                      border: Border(
+                          bottom: BorderSide(
+                              color: Theme.of(context).dividerColor))),
+                ),
+              )
                   : Container(),
               Expanded(
                 child: SingleChildScrollView(
@@ -163,7 +164,7 @@ class _SongScreenState extends State<SongScreen> {
                 ),
               ),
             ],
-          ),
+          )),
           floatingActionButton: FloatingActionButton(
             onPressed: () {
               setState(() {
@@ -175,58 +176,58 @@ class _SongScreenState extends State<SongScreen> {
                 ? const Icon(Icons.notes, color: Colors.white)
                 : const Icon(Icons.music_note, color: Colors.white),
           ),
-//            bottomNavigationBar: BottomAppBar(
-//              child: Row(
-//                mainAxisSize: MainAxisSize.max,
-//                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                children: <Widget>[
-//                  SizedBox(
-//                    child: Row(
-//                      children: <Widget>[
-//                        IconButton(
-//                          icon: Icon(Icons.zoom_in),
-//                          onPressed: () {
-//                            setState(() {
-//                              _textSize += 1;
-//                              SharedPreferences.getInstance()
-//                                  .then((prefs) {
-//                                prefs.setDouble(PREFS_TEXT_SIZE_KEY, _textSize);
-//                              });
-//                            });
-//                          },
-//                          iconSize: 40.0,
-//                        ),
-//                        IconButton(
-//                          icon: Icon(Icons.zoom_out),
-//                          onPressed: () {
-//                            setState(() {
-//                              _textSize -= 1;
-//                              SharedPreferences.getInstance()
-//                                  .then((prefs) {
-//                                prefs.setDouble(PREFS_TEXT_SIZE_KEY, _textSize);
-//                              });
-//                            });
-//                          },
-//                          iconSize: 40.0,
-//                        ),
-//                      ],
-//                    )
-//                  ),
-//                  SizedBox(
-//                    height: 50,
-//                    child: IconButton(
-//                      icon: Icon(Icons.play_arrow),
-//                      onPressed: () {
-//
-//                      },
-//                      iconSize: 40.0,
-//                    ),
-//                  ),
-//                ],
-//              ),
-//              shape: CircularNotchedRectangle(),
-//              color: Theme.of(context).primaryColor,
-//            ),
+           // bottomNavigationBar: BottomAppBar(
+           //   child: Row(
+           //     mainAxisSize: MainAxisSize.max,
+           //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+           //     children: <Widget>[
+           //       SizedBox(
+           //         child: Row(
+           //           children: <Widget>[
+           //             IconButton(
+           //               icon: Icon(Icons.zoom_in),
+           //               onPressed: () {
+           //                 setState(() {
+           //                   _textSize += 1;
+           //                   SharedPreferences.getInstance()
+           //                       .then((prefs) {
+           //                     prefs.setDouble(PREFS_TEXT_SIZE_KEY, _textSize);
+           //                   });
+           //                 });
+           //               },
+           //               iconSize: 40.0,
+           //             ),
+           //             IconButton(
+           //               icon: Icon(Icons.zoom_out),
+           //               onPressed: () {
+           //                 setState(() {
+           //                   _textSize -= 1;
+           //                   SharedPreferences.getInstance()
+           //                       .then((prefs) {
+           //                     prefs.setDouble(PREFS_TEXT_SIZE_KEY, _textSize);
+           //                   });
+           //                 });
+           //               },
+           //               iconSize: 40.0,
+           //             ),
+           //           ],
+           //         )
+           //       ),
+           //       SizedBox(
+           //         height: 50,
+           //         child: IconButton(
+           //           icon: Icon(Icons.play_arrow),
+           //           onPressed: () {
+           //
+           //           },
+           //           iconSize: 40.0,
+           //         ),
+           //       ),
+           //     ],
+           //   ),
+           //   shape: CircularNotchedRectangle(),
+           //   color: Theme.of(context).primaryColor,
+           // ),
         );
       },
     );

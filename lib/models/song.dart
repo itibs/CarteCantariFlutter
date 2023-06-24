@@ -9,6 +9,7 @@ import 'song_summary.dart';
 class Song extends SongSummary {
   String text;
   String searchableText;
+  List<String> musicSheet;
 
   Song(
       {@required String bookId,
@@ -20,6 +21,7 @@ class Song extends SongSummary {
       String references,
       String pitch,
       List<String> tags,
+      this.musicSheet,
       @required this.text,
       String searchableTitle,
       this.searchableText})
@@ -37,6 +39,7 @@ class Song extends SongSummary {
   factory Song.fromJson(Map<String, dynamic> json, {String bookId}) {
     var text = json['text'];
     var searchableText = json['searchable_text'] ?? getSearchable(text);
+    var musicSheet = json['music_sheet'];
 
     SongSummary songSummary = SongSummary.fromJson(json, bookId: bookId);
 
@@ -50,6 +53,7 @@ class Song extends SongSummary {
       references: songSummary.references,
       pitch: songSummary.pitch,
       tags: songSummary.tags,
+      musicSheet: musicSheet?.cast<String>(),
       text: text,
       searchableTitle: songSummary.searchableTitle,
       searchableText: searchableText,
@@ -67,6 +71,7 @@ class Song extends SongSummary {
       'references': references,
       'pitch': pitch,
       'tags': tags,
+      'music_sheet': musicSheet,
       'text': text,
       'searchable_title': searchableTitle,
       'searchable_text': searchableText,
