@@ -10,6 +10,7 @@ import 'package:ccc_flutter/widgets/categories_screen/categories_screen.dart';
 import 'package:ccc_flutter/widgets/common/search_box.dart';
 import 'package:ccc_flutter/widgets/common/song_list.dart';
 import 'package:ccc_flutter/widgets/main_screen/horizontal_button.dart';
+import 'package:ccc_flutter/widgets/music_sheet_settings_screen/music_sheet_settings_screen.dart';
 import 'package:ccc_flutter/widgets/side_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -156,6 +157,16 @@ class _MainScreenState extends State<MainScreen> {
                 builder: (context) => CategoriesScreen(
                   songs: fullSongs,
                   setFavorite: _setFavorite,
+                ),
+              ));
+          return;
+        },
+        goToMusicSheetSettings: () async {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => MusicSheetSettingsScreen(
+                  songs: _songs,
                 ),
               ));
           return;

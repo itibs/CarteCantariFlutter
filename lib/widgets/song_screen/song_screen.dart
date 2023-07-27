@@ -26,6 +26,7 @@ class SongScreen extends StatefulWidget {
 class _SongScreenState extends State<SongScreen> {
   double _textSize;
   bool _isFavorite;
+  bool _isMusicSheetAvailable = false;
   bool _showMusicSheet = false;
 
   static const DEFAULT_TEXT_SIZE = 21.0;
@@ -39,6 +40,7 @@ class _SongScreenState extends State<SongScreen> {
     SharedPreferences.getInstance().then((prefs) {
       setState(() {
         _textSize = prefs.getDouble(PREFS_TEXT_SIZE_KEY) ?? DEFAULT_TEXT_SIZE;
+        _isMusicSheetAvailable = isMusicSheetAvailable(prefs.getBool(PREFS_ALLOW_JUBILATE) ?? false);
       });
     });
     _isFavorite = false;
@@ -165,7 +167,7 @@ class _SongScreenState extends State<SongScreen> {
               ),
             ],
           )),
-          floatingActionButton: FloatingActionButton(
+          floatingActionButton: _isMusicSheetAvailable ? FloatingActionButton(
             onPressed: () {
               setState(() {
                 _showMusicSheet = !_showMusicSheet;
@@ -175,7 +177,7 @@ class _SongScreenState extends State<SongScreen> {
             child: _showMusicSheet
                 ? const Icon(Icons.notes, color: Colors.white)
                 : const Icon(Icons.music_note, color: Colors.white),
-          ),
+          ) : Container(),
            // bottomNavigationBar: BottomAppBar(
            //   child: Row(
            //     mainAxisSize: MainAxisSize.max,
@@ -231,5 +233,12 @@ class _SongScreenState extends State<SongScreen> {
         );
       },
     );
+  }
+
+  bool isMusicSheetAvailable(bool allowJubilate) {
+    if (widget.song.bookId == "J" && !allowJubilate) {
+      return false;
+    }
+    return widget.song.musicSheet.length > 0;
   }
 }

@@ -38,10 +38,12 @@ class Song extends SongSummary {
 
   factory Song.fromJson(Map<String, dynamic> json, {String bookId}) {
     var text = json['text'];
-    var searchableText = json['searchable_text'] ?? getSearchable(text);
     var musicSheet = json['music_sheet'];
 
     SongSummary songSummary = SongSummary.fromJson(json, bookId: bookId);
+
+    var rawTextToSearch = [text, songSummary.author, songSummary.composer, songSummary.originalTitle, songSummary.references].join(" ");
+    var searchableText = json['searchable_text'] ?? getSearchable(rawTextToSearch);
 
     return Song(
       bookId: songSummary.bookId,

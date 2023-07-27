@@ -11,12 +11,12 @@ class CategorySongsScreen extends StatefulWidget {
   final Set<Song> songs;
   final Function setFavorite;
 
-  CategorySongsScreen(
-      {Key key,
-      @required this.category,
-      @required this.songs,
-      this.setFavorite})
-      : super(key: key);
+  CategorySongsScreen({
+    Key key,
+    @required this.category,
+    @required this.songs,
+    this.setFavorite,
+  }) : super(key: key);
 
   @override
   _CategorySongsScreenState createState() => _CategorySongsScreenState();

@@ -6,8 +6,9 @@ import 'package:provider/provider.dart';
 class SideMenu extends StatelessWidget {
   final VoidCallback syncBooks;
   final VoidCallback goToCategories;
+  final VoidCallback goToMusicSheetSettings;
 
-  SideMenu({Key key, @required this.syncBooks, @required this.goToCategories})
+  SideMenu({Key key, @required this.syncBooks, @required this.goToCategories, @required this.goToMusicSheetSettings})
       : super(key: key);
 
   @override
@@ -51,6 +52,16 @@ class SideMenu extends StatelessWidget {
               ),
               value: showKeySignatures.state,
               onChanged: showKeySignatures.setValue),
+          ListTile(
+            //leading: Icon(Icons.sync),
+            title: Text(
+              'Opțiuni partituri',
+              style: TextStyle(
+                fontSize: 20,
+              ),
+            ),
+            onTap: goToMusicSheetSettings,
+          ),
           // ListTile(
           //   //leading: Icon(Icons.sync),
           //   title: Text(
