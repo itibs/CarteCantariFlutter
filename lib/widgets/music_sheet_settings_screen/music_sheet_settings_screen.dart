@@ -55,21 +55,21 @@ class _MusicSheetSettingsScreenState extends State<MusicSheetSettingsScreen> {
       appBar: AppBar(
         title: GestureDetector(
           child: Text("Opțiuni partituri"),
-          onTap: () {
-            _longPressCounter = 0;
-            _tapCounter++;
-            if (_tapCounter >= 10) {
-              _showModalDialog(context, () {
-                allowJubilateMusicSheets.setValue(true);
-                showToast("Partiturile Jubilate au fost activate", _fToast);
-              });
-            }
-          },
+          // onTap: () {
+          //   _longPressCounter = 0;
+          //   _tapCounter++;
+          //   if (_tapCounter >= 10) {
+          //     _showModalDialog(context, () {
+          //       allowJubilateMusicSheets.setValue(true);
+          //       showToast("Partiturile Jubilate au fost activate", _fToast);
+          //     });
+          //   }
+          // },
           onLongPress: () {
             _tapCounter = 0;
             _longPressCounter++;
             if (_longPressCounter >= 3) {
-              _showModalDialog(context, () {
+              _showObtainAccessModalDialog(context, () {
                 allowCorMusicSheets.setValue(true);
                 showToast("Partiturile de Cor au fost activate", _fToast);
               });
@@ -134,6 +134,27 @@ class _MusicSheetSettingsScreenState extends State<MusicSheetSettingsScreen> {
           ),
           Divider(),
           ListTile(
+            title: Text(
+              'Obține acces pentru Jubilate',
+              style: TextStyle(
+                fontSize: 20,
+              ),
+            ),
+            subtitle: Text(
+              'Pentru a obține un cod de acces trebuie să demonstrezi că deții culegerile (vol 1 & 2).',
+              style: TextStyle(
+                fontSize: 12,
+              ),
+            ),
+            onTap: () {
+              _showObtainAccessModalDialog(context, () {
+                allowJubilateMusicSheets.setValue(true);
+                showToast("Partiturile Jubilate au fost activate", _fToast);
+              });
+            },
+          ),
+          Divider(),
+          ListTile(
               title: Text(_totalFiles == 0
                   ? "Partituri descărcate: (se încarcă...)"
                   : "Partituri descărcate: ${_downloadedFiles.toString()}/$_totalFiles"))
@@ -142,38 +163,84 @@ class _MusicSheetSettingsScreenState extends State<MusicSheetSettingsScreen> {
     );
   }
 
-  _showModalDialog(context, void Function() callback) {
+  _showObtainAccessModalDialog(context, void Function() callback) {
     final tokenVerifierUrl =
         "https://jtqw98uksa.execute-api.eu-central-1.amazonaws.com/music_sheet_token/";
     final textController = TextEditingController();
+    // final Email email = Email(
+    //   body: '',
+    //   subject: 'Email subject',
+    //   recipients: ['tiberiu.irg@gmail.com'],
+    //   isHTML: false,
+    // );
+
     showDialog(
         context: context,
         builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text("Introdu codul de acces:"),
-            content: TextField(
-              controller: textController,
-              keyboardType: TextInputType.number,
-            ),
-            actions: [
-              TextButton(
-                child: Text("Trimite"),
-                onPressed: () {
-                  final url = tokenVerifierUrl + textController.value.text;
-                  http.get(Uri.parse(url)).then((response) {
-                    if (response.statusCode == 200) {
-                      callback();
-                    } else {
-                      showToast("Cod incorect", _fToast);
-                    }
-                  }).onError((error, stackTrace) {
-                    showToast(
-                        "A apărut o eroare, încearcă mai târziu", _fToast);
-                  });
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
+          var _errorOpeningEmail = false;
+          return StatefulBuilder(
+            builder: (context, setState) {
+              return AlertDialog(
+                title: Text("Obținere acces partituri"),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      "Trimite un e-mail la adresa tiberiu.irg@gmail.com în care să demonstrezi că deții culegerile Jubilate.",
+                      textScaleFactor: 0.7,
+                    ),
+                    // OutlinedButton(
+                    //   child: Text("Trimite email pentru a obține cod"),
+                    //   onPressed: () async {
+                    //     // try {
+                    //     //   await FlutterEmailSender.send(email);
+                    //     //   setState(() => _errorOpeningEmail = false);
+                    //     // } catch (e) {
+                    //     //   setState(() => _errorOpeningEmail = true);
+                    //     // }
+                    //   },
+                    // ),
+                    // _errorOpeningEmail ? Text(
+                    //   "A apărut o eroare la deschiderea aplicației de e-mail.\nPoți trimite un e-mail la adresa tiberiu.irg@gmail.com în care să demonstrezi că deții culegerile Jubilate.",
+                    //   textScaleFactor: 0.7,
+                    //   style: TextStyle(
+                    //     color: Colors.red,
+                    //     fontStyle: FontStyle.italic,
+                    //   ),
+                    // ) : Container(),
+                    Padding(
+                        padding: EdgeInsets.fromLTRB(0, 20, 0, 0),
+                        child: Text(
+                          "Introdu codul de acces:",
+                          textScaleFactor: 0.7,
+                        )),
+                    TextField(
+                      controller: textController,
+                      keyboardType: TextInputType.number,
+                    ),
+                  ],
+                ),
+                actions: [
+                  TextButton(
+                    child: Text("Trimite"),
+                    onPressed: () {
+                      final url = tokenVerifierUrl + textController.value.text;
+                      http.get(Uri.parse(url)).then((response) {
+                        if (response.statusCode == 200) {
+                          callback();
+                        } else {
+                          showToast("Cod incorect", _fToast);
+                        }
+                      }).onError((error, stackTrace) {
+                        showToast(
+                            "A apărut o eroare, încearcă mai târziu", _fToast);
+                      });
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              );
+            },
           );
         });
   }

@@ -176,7 +176,7 @@ class _SongScreenState extends State<SongScreen> {
             backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
             child: _showMusicSheet
                 ? const Icon(Icons.notes, color: Colors.white)
-                : const Icon(Icons.music_note, color: Colors.white),
+                : const Icon(Icons.queue_music, color: Colors.white),
           ) : Container(),
            // bottomNavigationBar: BottomAppBar(
            //   child: Row(

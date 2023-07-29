@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 
-const musicSheetWidth = 700.0;
+const defaultMusicSheetWidth = 700.0;
 
 class CoverInteractiveViewer extends StatelessWidget {
+  final musicSheetWidth;
+
   const CoverInteractiveViewer({
     this.child,
     Key key,
+    this.musicSheetWidth,
   }):super(key: key);
 
   final Widget child;
@@ -16,7 +19,7 @@ class CoverInteractiveViewer extends StatelessWidget {
     return LayoutBuilder(
       builder: (__, constraint) {
         return InteractiveViewer(
-          transformationController: controller..value = Matrix4.identity() * (constraint.biggest.width / musicSheetWidth),
+          transformationController: controller..value = Matrix4.identity() * (constraint.biggest.width / (musicSheetWidth ?? defaultMusicSheetWidth)),
           minScale: 0.1,
           constrained: false,
           child: child,

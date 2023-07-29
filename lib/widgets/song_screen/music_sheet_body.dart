@@ -35,12 +35,29 @@ class MusicSheetBodyState extends State<MusicSheetBody> {
   Widget build(BuildContext context) {
     return SafeArea(
         child: _hasError
-            ? Center(child: Text("A apărut o eroare la încărcarea partiturilor.\nVerifică conexiunea la internet."))
+            ? Center(
+                child: Text(
+                    "A apărut o eroare la încărcarea partiturilor.\nVerifică conexiunea la internet."))
             : CoverInteractiveViewer(
                 child: Column(
-                children: _memImages
-                    .map((imgBytes) => Image.memory(imgBytes))
-                    .toList(),
-              )));
+                  children: _memImages
+                      .map((imgBytes) => Image.memory(imgBytes))
+                      .toList(),
+                ),
+                musicSheetWidth: null,
+              ));
+  }
+
+  int getCustomWidthFromName(String input) {
+    RegExp exp = new RegExp(r'^W(\d+)\_');
+
+    if (exp.hasMatch(input)) {
+      Match match = exp.firstMatch(input);
+      if (match != null) {
+        String numberString = match.group(1);
+        return int.parse(numberString);
+      }
+    }
+    return null;
   }
 }

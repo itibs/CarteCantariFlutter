@@ -22,7 +22,7 @@ const PREFS_TEXT_SIZE_KEY = "textSize";
 const PREFS_ALLOW_JUBILATE = "allowJubilate";
 const PREFS_UPDATE_VERSION = "updateVersion";
 
-const LATEST_UPDATE_VERSION = 1;
+const LATEST_UPDATE_VERSION = 2;
 
 const HOSTNAME = "185.177.59.158";
 //const HOSTNAME = "localhost:5001";
