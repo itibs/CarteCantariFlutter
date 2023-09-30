@@ -22,7 +22,7 @@ import 'dart:async';
 import 'dart:developer' as developer;
 
 class MainScreen extends StatefulWidget {
-  MainScreen({Key key}) : super(key: key);
+  MainScreen({Key? key}) : super(key: key);
 
   @override
   _MainScreenState createState() => _MainScreenState();
@@ -34,13 +34,11 @@ class _MainScreenState extends State<MainScreen> {
   var _songs = Future(() => Set<Song>());
   var _crtBookId = ALL_SONGS_BOOK_ID;
   var _searchString = "";
-  List<SongSummary> _searchLyricsResults;
+  List<SongSummary>? _searchLyricsResults;
   BookService _bookService;
   FToast _fToast;
 
-  _MainScreenState() {
-    _bookService = new BookService();
-  }
+  _MainScreenState() :_bookService = new BookService(), _fToast = FToast();
 
   String _getBookTitleById(String bookId) {
     return _books.firstWhere((book) => book.id == bookId).title;
@@ -70,14 +68,17 @@ class _MainScreenState extends State<MainScreen> {
     final filteredSongs = songs.where((SongSummary song) {
       return _searchString == "" ||
           song.searchableTitle.contains(_searchString) ||
-          fullSongs.lookup(song).searchableText.contains(_searchString);
+          fullSongs.lookup(song)!.searchableText.contains(_searchString);
     }).toList();
     setState(() {
       _searchLyricsResults = filteredSongs;
     });
   }
 
-  void _changeBook(String value) {
+  void _changeBook(String? value) {
+    if (value == null) {
+      return;
+    }
     setState(() {
       _crtBookId = value;
     });
@@ -110,7 +111,6 @@ class _MainScreenState extends State<MainScreen> {
   void initState() {
     super.initState();
 
-    _fToast = FToast();
     _fToast.init(context);
 
     SharedPreferences.getInstance().then((prefs) {
@@ -176,7 +176,7 @@ class _MainScreenState extends State<MainScreen> {
         title: DropdownButton<String>(
           value: _crtBookId,
           dropdownColor: Theme.of(context).primaryColor,
-          iconEnabledColor: Theme.of(context).primaryTextTheme.headline6.color,
+          iconEnabledColor: Theme.of(context).primaryTextTheme.titleLarge!.color,
           onChanged: _changeBook,
           items: _books.map((Book book) {
             return DropdownMenuItem<String>(
@@ -305,7 +305,7 @@ class _MainScreenState extends State<MainScreen> {
                     context,
                     MaterialPageRoute(
                       builder: (context) => SongScreen(
-                        song: fullSongs.lookup(song),
+                        song: fullSongs.lookup(song)!,
                         setFavorite: _setFavorite,
                       ),
                     ));

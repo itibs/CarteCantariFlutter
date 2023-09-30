@@ -6,7 +6,7 @@ class SongList extends StatelessWidget {
   final List<SongSummary> songs;
   final Future<void> Function(SongSummary) onTap;
 
-  SongList({this.songs, this.onTap});
+  SongList({required this.songs, required this.onTap});
 
   @override
   Widget build(BuildContext context) {

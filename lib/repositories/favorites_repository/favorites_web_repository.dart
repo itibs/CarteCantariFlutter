@@ -12,7 +12,7 @@ class FavoritesWebRepository implements IFavoritesRepository {
     if (!_localStorage.containsKey(FAVORITES_STORAGE_KEY)) {
       return Future(() => Set<String>());
     }
-    final strFavoritesJson = _localStorage[FAVORITES_STORAGE_KEY];
+    final strFavoritesJson = _localStorage[FAVORITES_STORAGE_KEY]!;
     final favorites =
         (json.decode(strFavoritesJson) as List<dynamic>).cast<String>();
     return Future(() => favorites.toSet());

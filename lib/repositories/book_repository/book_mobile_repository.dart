@@ -17,13 +17,13 @@ class BookMobileRepository implements IBookRepository {
   BookFileRepository _bookFileRepository;
   BookServerRepository _bookServerRepository;
   Future<Directory> _directory;
-  Future<bool> _fileExists;
+  Future<bool>? _fileExists;
 
   BookMobileRepository(
-      {BookAssetRepository bookAssetRepository,
-      BookFileRepository bookFileRepository,
-      BookServerRepository bookServerRepository,
-      Future<Directory> directory})
+      {BookAssetRepository? bookAssetRepository,
+      BookFileRepository? bookFileRepository,
+      BookServerRepository? bookServerRepository,
+      Future<Directory>? directory})
       : _bookAssetRepository = bookAssetRepository ?? new BookAssetRepository(),
         _bookFileRepository = bookFileRepository ?? new BookFileRepository(),
         _bookServerRepository =
@@ -45,7 +45,7 @@ class BookMobileRepository implements IBookRepository {
       yield* _bookFileRepository.getBookPackage();
     } catch (e) {}
 
-    if (await _fileExists) {
+    if (await _fileExists!) {
       // even if file exists, redownload songs on update
       var prefs = await SharedPreferences.getInstance();
       var crtVersion = prefs.getInt(PREFS_UPDATE_VERSION) ?? 0;

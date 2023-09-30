@@ -14,8 +14,8 @@ class MusicSheetSettingsScreen extends StatefulWidget {
   final MusicSheetService musicSheetService;
 
   MusicSheetSettingsScreen({
-    Key key,
-    @required this.songs,
+    Key? key,
+    required this.songs,
   })  : musicSheetService = MusicSheetService(),
         super(key: key);
 
@@ -25,17 +25,17 @@ class MusicSheetSettingsScreen extends StatefulWidget {
 }
 
 class _MusicSheetSettingsScreenState extends State<MusicSheetSettingsScreen> {
-  var _tapCounter = 0;
   var _longPressCounter = 0;
   var _downloadedFiles = 0;
   var _totalFiles = 0;
   FToast _fToast;
 
+  _MusicSheetSettingsScreenState() : _fToast = FToast();
+
   @override
   void initState() {
     super.initState();
 
-    _fToast = FToast();
     _fToast.init(context);
 
     _getMusicSheetFileNames(widget.songs).then((fileNames) {
@@ -66,7 +66,6 @@ class _MusicSheetSettingsScreenState extends State<MusicSheetSettingsScreen> {
           //   }
           // },
           onLongPress: () {
-            _tapCounter = 0;
             _longPressCounter++;
             if (_longPressCounter >= 3) {
               _showObtainAccessModalDialog(context, () {
@@ -177,7 +176,6 @@ class _MusicSheetSettingsScreenState extends State<MusicSheetSettingsScreen> {
     showDialog(
         context: context,
         builder: (BuildContext context) {
-          var _errorOpeningEmail = false;
           return StatefulBuilder(
             builder: (context, setState) {
               return AlertDialog(
@@ -247,11 +245,11 @@ class _MusicSheetSettingsScreenState extends State<MusicSheetSettingsScreen> {
 
   Future<List<String>> _getMusicSheetFileNames(Future<Set<Song>> songs) async {
     final songsSet = await songs;
-    return songsSet.fold<Set<String>>(Set<String>(), (previousValue, element) {
-      if (element.musicSheet == null) {
+    return songsSet.fold<Set<String>>(Set<String>(), (previousValue, song) {
+      if (song.musicSheet == null) {
         return previousValue;
       }
-      previousValue.addAll(element.musicSheet);
+      previousValue.addAll(song.musicSheet!);
       return previousValue;
     }).toList();
   }

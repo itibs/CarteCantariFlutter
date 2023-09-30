@@ -5,7 +5,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 class ShowKeySignaturesCubit extends Cubit<bool> {
   ShowKeySignaturesCubit() : super(false);
 
-  void setValue(bool value) {
+  void setValue(bool? value) {
+    if (value == null) {
+      return;
+    }
     SharedPreferences.getInstance().then((prefs) {
       prefs.setBool(PREFS_SETTINGS_SHOW_KEY_SIGNATURES, value);
     });

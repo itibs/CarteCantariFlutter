@@ -1,6 +1,7 @@
 import 'package:ccc_flutter/blocs/theme/theme_bloc.dart';
 import 'package:ccc_flutter/helpers.dart';
 import 'package:ccc_flutter/models/song.dart';
+import 'package:ccc_flutter/models/song_summary.dart';
 import 'package:ccc_flutter/widgets/categories_screen/category_songs_screen.dart';
 import 'package:ccc_flutter/widgets/categories_screen/category_list.dart';
 import 'package:ccc_flutter/widgets/common/search_box.dart';
@@ -9,10 +10,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CategoriesScreen extends StatefulWidget {
   final Set<Song> songs;
-  final Function setFavorite;
+  final Function(SongSummary, bool) setFavorite;
   final Map<String, List<Song>> categories;
 
-  CategoriesScreen({Key key, @required this.songs, this.setFavorite})
+  CategoriesScreen({Key? key, required this.songs, required this.setFavorite})
       : categories = getCategories(songs.toList()),
         super(key: key);
 
@@ -25,11 +26,11 @@ class CategoriesScreen extends StatefulWidget {
       if (song.tags == null) {
         continue;
       }
-      for (var tag in song.tags) {
+      for (var tag in song.tags!) {
         if (!categories.containsKey(tag)) {
           categories[tag] = [];
         }
-        categories[tag].add(song);
+        categories[tag]!.add(song);
       }
     }
     return categories;
@@ -47,7 +48,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
         .toList();
 
     return Map.fromIterable(filteredCategories,
-        key: (e) => e, value: (e) => widget.categories[e]);
+        key: (e) => e, value: (e) => widget.categories[e]!);
   }
 
   @override

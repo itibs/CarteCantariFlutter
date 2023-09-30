@@ -18,8 +18,8 @@ TextSpan getFormattedTextSpan(
     if (token.length > 0 && token[0] == "|") {
       final match = tokenIdRegEx.firstMatch(token);
       return TextSpan(
-        text: token.substring(match.group(0).length),
-        style: stylesList[int.parse(match.group(1))].value,
+        text: token.substring(match!.group(0)!.length),
+        style: stylesList[int.parse(match.group(1)!)].value,
       );
     } else {
       return TextSpan(

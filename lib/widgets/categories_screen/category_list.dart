@@ -6,7 +6,7 @@ class CategoryList extends StatelessWidget {
   final Future<void> Function(String category, List<Song> songs) onTap;
   final Map<String, List<Song>> categories;
 
-  CategoryList({this.categories, this.onTap});
+  CategoryList({required this.categories, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +36,7 @@ class CategoryList extends StatelessWidget {
       fontWeight: FontWeight.w500,
     );
 
-    var categorySongs = categories[category];
+    var categorySongs = categories[category]!;
 
     Widget txtNum = Text(
       " (" + categorySongs.length.toString() + ")",

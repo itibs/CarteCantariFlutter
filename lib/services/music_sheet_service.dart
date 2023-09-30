@@ -10,7 +10,7 @@ class MusicSheetService {
   IMusicSheetRepository _musicSheetRepository;
 
   MusicSheetService(
-      {IMusicSheetRepository musicSheetRepository})
+      {IMusicSheetRepository? musicSheetRepository})
       : _musicSheetRepository = musicSheetRepository ??
             (kIsWeb ? new MusicSheetServerRepository() : new MusicSheetMobileRepository());
 

@@ -36,7 +36,7 @@ class PitchSoundService {
   Map<String, int> _streamIds;
 
   PitchSoundService()
-      : _soundpool = Soundpool(maxStreams: 1, streamType: StreamType.music),
+      : _soundpool = Soundpool.fromOptions(options: SoundpoolOptions(streamType: StreamType.music, maxStreams: 1)),
         _soundIds = new Map(),
         _streamIds = new Map() {
     for (var pitch in CHORDS) {
@@ -50,7 +50,7 @@ class PitchSoundService {
       if (_streamIds.containsKey(pitch)) {
         _streamIds.remove(pitch);
       }
-      final soundId = await _soundIds[pitch];
+      final soundId = await _soundIds[pitch]!;
       _streamIds[pitch] = await _soundpool.play(soundId);
     }
   }
@@ -62,7 +62,7 @@ class PitchSoundService {
       developer.log("Try #$i");
       if (_streamIds.containsKey(pitch)) {
         developer.log("Stopping chord $pitch");
-        await _soundpool.stop(_streamIds[pitch]);
+        await _soundpool.stop(_streamIds[pitch]!);
         return;
       }
       await Future.delayed(Duration(milliseconds: 10));

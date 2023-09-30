@@ -21,6 +21,7 @@ class MusicSheetBodyState extends State<MusicSheetBody> {
 
   @override
   void initState() {
+    super.initState();
     widget.musicSheetService
         .getMusicSheet(widget.musicSheet)
         .then((result) => setState(() {
@@ -48,13 +49,13 @@ class MusicSheetBodyState extends State<MusicSheetBody> {
               ));
   }
 
-  int getCustomWidthFromName(String input) {
+  int? getCustomWidthFromName(String input) {
     RegExp exp = new RegExp(r'^W(\d+)\_');
 
     if (exp.hasMatch(input)) {
-      Match match = exp.firstMatch(input);
+      var match = exp.firstMatch(input);
       if (match != null) {
-        String numberString = match.group(1);
+        String numberString = match.group(1)!;
         return int.parse(numberString);
       }
     }

@@ -8,7 +8,7 @@ import 'package:provider/provider.dart';
 class KeySignature extends StatefulWidget {
   final String pitch;
 
-  KeySignature({this.pitch});
+  KeySignature({required this.pitch});
 
   @override
   KeySignatureState createState() => KeySignatureState();
@@ -16,19 +16,20 @@ class KeySignature extends StatefulWidget {
 
 class KeySignatureState extends State<KeySignature>
     with SingleTickerProviderStateMixin {
-  AnimationController _animationController;
+  AnimationController? _animationController;
   FToast _fToast;
+
+  KeySignatureState() : _fToast = FToast();
 
   @override
   void initState() {
     super.initState();
 
-    _fToast = FToast();
     _fToast.init(context);
 
     _animationController =
         AnimationController(vsync: this, duration: Duration(seconds: 4));
-    _animationController.addListener(() {
+    _animationController!.addListener(() {
       setState(() {});
     });
   }
@@ -52,15 +53,15 @@ class KeySignatureState extends State<KeySignature>
     return GestureDetector(
       onTapDown: (_) {
         showToast("Ține apăsat pentru a auzi tonalitatea", _fToast);
-        _animationController.forward();
+        _animationController!.forward();
         pitchSoundService.playChord(widget.pitch);
       },
       onTapUp: (_) {
-        _animationController.reset();
+        _animationController!.reset();
         pitchSoundService.stopChord(widget.pitch);
       },
       onTapCancel: () {
-        _animationController.reset();
+        _animationController!.reset();
         pitchSoundService.stopChord(widget.pitch);
       },
       child: Stack(
@@ -71,7 +72,7 @@ class KeySignatureState extends State<KeySignature>
             valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
           ),
           CircularProgressIndicator(
-            value: _animationController.value,
+            value: _animationController!.value,
             valueColor: AlwaysStoppedAnimation<Color>(COLOR_DARKER_BLUE),
           ),
           Text(strPitch,

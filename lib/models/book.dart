@@ -8,7 +8,7 @@ class Book {
   String title;
   List<SongSummary> songSummaries;
 
-  Book({this.title, this.id, this.songSummaries});
+  Book({required this.title, required this.id, required this.songSummaries});
 
   factory Book.fromJson(Map<String, dynamic> json) {
     var bookId = json['id'];

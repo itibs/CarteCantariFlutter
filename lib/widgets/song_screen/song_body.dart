@@ -18,18 +18,18 @@ class SongBody extends StatelessWidget {
         TextStyle(fontWeight: FontWeight.w500, fontStyle: FontStyle.italic),
   };
 
-  SongBody({this.song, this.textSize});
+  SongBody({required this.song, required this.textSize});
 
   @override
   Widget build(BuildContext context) {
     final textFont = TextStyle(
       fontSize: textSize,
-      color: Theme.of(context).textTheme.headline6.color,
+      color: Theme.of(context).textTheme.titleLarge!.color,
     );
 
     final metaTextFont = TextStyle(
       fontSize: textSize * 0.75,
-      color: Theme.of(context).textTheme.headline6.color.withAlpha(190),
+      color: Theme.of(context).textTheme.titleLarge!.color!.withAlpha(190),
       fontStyle: FontStyle.italic,
     );
 
@@ -96,7 +96,7 @@ class SongBody extends StatelessWidget {
         TextSpan(text: "Tonalitate recomandată: ", style: style),
         WidgetSpan(
             //child: KeySignature(pitch: song.pitch, style: keySignatureStyle),
-            child: KeySignature(pitch: song.pitch),
+            child: KeySignature(pitch: song.pitch!),
             alignment: PlaceholderAlignment.middle),
         TextSpan(text: "\n\n\n"),
       ]);

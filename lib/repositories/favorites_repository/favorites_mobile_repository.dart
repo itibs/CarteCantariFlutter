@@ -9,9 +9,9 @@ const String FAVORITES_FILE = 'favorites.json';
 
 class FavoritesMobileRepository implements IFavoritesRepository {
   Future<Directory> _directory;
-  Future<File> _file;
+  Future<File>? _file;
 
-  FavoritesMobileRepository({Future<Directory> directory})
+  FavoritesMobileRepository({Future<Directory>? directory})
       : _directory = directory ?? getApplicationDocumentsDirectory() {
     _file = Future(() async {
       final directory = await _directory;
@@ -27,14 +27,14 @@ class FavoritesMobileRepository implements IFavoritesRepository {
     final file = await _file;
 
     final strFavoritesJson = json.encode(favorites.toList());
-    await file.writeAsString(strFavoritesJson);
+    await file!.writeAsString(strFavoritesJson);
 
     developer.log("${DateTime.now()} Stored favorites in file");
   }
 
   Future<Set<String>> fetchFavoritesFromFile() async {
     final file = await _file;
-    if (!(await file.exists())) {
+    if (!(await file!.exists())) {
       return Set<String>();
     }
     final strFavoritesJson = await file.readAsString();

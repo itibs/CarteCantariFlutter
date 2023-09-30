@@ -6,15 +6,17 @@ class SearchBox extends StatefulWidget {
   final void Function() onClear;
   final TextEditingController txtController;
 
-  SearchBox({this.onTextChanged, this.onClear, txtController})
-      : this.txtController = txtController ?? new TextEditingController();
+  SearchBox({onTextChanged, onClear, txtController})
+      : this.txtController = txtController ?? new TextEditingController(),
+    onTextChanged = onTextChanged ?? (String),
+  onClear = onClear ?? VoidCallback;
 
   @override
   SearchBoxState createState() => SearchBoxState();
 }
 
 class SearchBoxState extends State<SearchBox> {
-  String _previousText;
+  String? _previousText;
 
   @override
   void initState() {

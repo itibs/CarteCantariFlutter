@@ -7,20 +7,22 @@ class HorizontalButton extends StatelessWidget {
   final Color color;
   final Color darkColor;
 
-  HorizontalButton({Key key, @required this.callback, @required this.visible, @required this.text, this.color, this.darkColor}) : super(key: key);
+  HorizontalButton({Key? key, required this.callback, required this.visible, required this.text, required this.color, required this.darkColor}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final lyricSearchButtonColor = isDark ? darkColor : color;
     if (visible) {
-      return FlatButton(
+      return TextButton(
           onPressed: callback,
-          shape: RoundedRectangleBorder(
-            borderRadius: new BorderRadius.circular(10.0),
-            side: BorderSide(color: lyricSearchButtonColor),
+          style: ButtonStyle(
+            shape: MaterialStateProperty.all(RoundedRectangleBorder(
+              borderRadius: new BorderRadius.circular(10.0),
+              side: BorderSide(color: lyricSearchButtonColor),
+            )),
+            backgroundColor: MaterialStateProperty.all(lyricSearchButtonColor),
           ),
-          color: lyricSearchButtonColor,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[

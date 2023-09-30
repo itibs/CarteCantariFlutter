@@ -5,5 +5,5 @@ class BookPackage {
   final List<Book> books;
   final Future<Set<Song>> songs;
 
-  BookPackage({this.books, this.songs});
+  BookPackage({required this.books, required this.songs});
 }

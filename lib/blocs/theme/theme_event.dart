@@ -11,5 +11,5 @@ class ThemeChanged extends ThemeEvent {
 class ThemeLoaded extends ThemeEvent {
   final AppTheme theme;
 
-  ThemeLoaded({this.theme});
+  ThemeLoaded({required this.theme});
 }

@@ -1,30 +1,28 @@
 import 'dart:convert';
 
 import 'package:ccc_flutter/helpers.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 
 import 'song_summary.dart';
 
 class Song extends SongSummary {
   String text;
   String searchableText;
-  List<String> musicSheet;
+  List<String>? musicSheet;
 
   Song(
-      {@required String bookId,
-      @required String title,
-      int number,
-      String author,
-      String composer,
-      String originalTitle,
-      String references,
-      String pitch,
-      List<String> tags,
+      {required String bookId,
+      required String title,
+      int? number,
+      String? author,
+      String? composer,
+      String? originalTitle,
+      String? references,
+      String? pitch,
+      List<String>? tags,
       this.musicSheet,
-      @required this.text,
-      String searchableTitle,
-      this.searchableText})
+      required this.text,
+      required String searchableTitle,
+      required this.searchableText})
       : super(
             bookId: bookId,
             title: title,
@@ -32,11 +30,12 @@ class Song extends SongSummary {
             author: author,
             composer: composer,
             originalTitle: originalTitle,
+            searchableTitle: searchableTitle,
             references: references,
             pitch: pitch,
             tags: tags);
 
-  factory Song.fromJson(Map<String, dynamic> json, {String bookId}) {
+  factory Song.fromJson(Map<String, dynamic> json, {String? bookId}) {
     var text = json['text'];
     var musicSheet = json['music_sheet'];
 

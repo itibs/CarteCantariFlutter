@@ -29,7 +29,7 @@ Future<bool> checkIfIsFavorite(SongSummary song) async {
 }
 
 Future<void> storeFavorites(Set<String> favorites,
-    [Directory directory]) async {
+    [Directory? directory]) async {
   directory ??= await getApplicationDocumentsDirectory();
   final file = File('${directory.path}/favorites.json');
 

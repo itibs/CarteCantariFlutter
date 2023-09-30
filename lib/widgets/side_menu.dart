@@ -8,7 +8,7 @@ class SideMenu extends StatelessWidget {
   final VoidCallback goToCategories;
   final VoidCallback goToMusicSheetSettings;
 
-  SideMenu({Key key, @required this.syncBooks, @required this.goToCategories, @required this.goToMusicSheetSettings})
+  SideMenu({Key? key, required this.syncBooks, required this.goToCategories, required this.goToMusicSheetSettings})
       : super(key: key);
 
   @override

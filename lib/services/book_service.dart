@@ -13,12 +13,12 @@ class BookService {
   IBookRepository _bookRepository;
   IFavoritesRepository _favoritesRepository;
 
-  Future<Set<String>> _favoritesFuture;
-  Set<String> _favorites;
+  Future<Set<String>>? _favoritesFuture;
+  Set<String>? _favorites;
 
   BookService(
-      {IBookRepository bookRepository,
-      IFavoritesRepository favoritesRepository})
+      {IBookRepository? bookRepository,
+      IFavoritesRepository? favoritesRepository})
       : _bookRepository = bookRepository ??
             (kIsWeb ? new BookServerRepository() : new BookMobileRepository()),
         _favoritesRepository = favoritesRepository ??
@@ -37,16 +37,18 @@ class BookService {
       final allSongs =
           realBooks.map((b) => b.songSummaries).expand((l) => l).toList();
       final favSongs = allSongs
-          .where((s) => favorites.contains(s.id) || favorites.contains(s.idV1))
+          .where((s) => favorites!.contains(s.id) || favorites.contains(s.idV1))
           .toList();
       final allSongsBook = Book(
         title: "Toate cântările",
         id: ALL_SONGS_BOOK_ID,
-      )..songSummaries = allSongs;
+        songSummaries: allSongs,
+      );
       final favoritesBook = Book(
         title: "Lista mea",
         id: FAVORITES_ID,
-      )..songSummaries = favSongs;
+        songSummaries: favSongs,
+      );
       yield new BookPackage(
           books: []
             ..add(allSongsBook)
@@ -65,8 +67,8 @@ class BookService {
     final favorites = _favorites ?? await _favoritesFuture;
 
     if (value) {
-      favorites.add(songId);
-    } else if (favorites.contains(songId)) {
+      favorites!.add(songId);
+    } else if (favorites!.contains(songId)) {
       favorites.remove(songId);
     }
 

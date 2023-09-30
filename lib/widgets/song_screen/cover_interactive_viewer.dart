@@ -6,8 +6,8 @@ class CoverInteractiveViewer extends StatelessWidget {
   final musicSheetWidth;
 
   const CoverInteractiveViewer({
-    this.child,
-    Key key,
+    Key? key,
+    required this.child,
     this.musicSheetWidth,
   }):super(key: key);
 

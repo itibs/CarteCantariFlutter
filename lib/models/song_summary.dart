@@ -1,21 +1,20 @@
 import 'package:ccc_flutter/helpers.dart';
-import 'package:flutter/foundation.dart';
 
 class SongSummary implements Comparable<SongSummary> {
   String bookId;
   String title;
-  int number;
-  String author;
-  String composer;
-  String originalTitle;
-  String references;
-  List<String> tags;
+  int? number;
+  String? author;
+  String? composer;
+  String? originalTitle;
+  String? references;
+  List<String>? tags;
   String searchableTitle;
-  String pitch;
+  String? pitch;
 
   SongSummary({
-    @required this.bookId,
-    @required this.title,
+    required this.bookId,
+    required this.title,
     this.number,
     this.author,
     this.composer,
@@ -23,10 +22,10 @@ class SongSummary implements Comparable<SongSummary> {
     this.references,
     this.pitch,
     this.tags,
-    this.searchableTitle,
+    required this.searchableTitle,
   });
 
-  factory SongSummary.fromJson(Map<String, dynamic> json, {String bookId}) {
+  factory SongSummary.fromJson(Map<String, dynamic> json, {String? bookId}) {
     bookId = json['book_id'] ?? bookId;
     var title = json['title'];
     var number = json['number'] != null ? int.parse(json['number']) : null;
@@ -38,7 +37,7 @@ class SongSummary implements Comparable<SongSummary> {
     var tags = json['tags'];
 
     var strNumber = number != null ? number.toString() : "";
-    var strBookAndNum = bookId + " " + strNumber;
+    var strBookAndNum = bookId! + " " + strNumber;
     var strippedBookAndNum = strBookAndNum.replaceAll(" ", "");
     var searchableTitle = json['searchable_title'] ??
         getSearchable(strippedBookAndNum + " " + strBookAndNum + " " + title);
@@ -93,8 +92,8 @@ class SongSummary implements Comparable<SongSummary> {
 
   @override
   int compareTo(SongSummary other) {
-    if (this.number != other.number) {
-      return this.number.compareTo(other.number);
+    if (this.number != null && other.number != null && this.number != other.number) {
+      return this.number!.compareTo(other.number!);
     }
     return this.title.compareTo(other.title);
   }

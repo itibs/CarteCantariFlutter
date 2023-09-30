@@ -11,7 +11,7 @@ const String musicSheetURL =
 class MusicSheetFileRepository implements IMusicSheetRepository {
   Future<Directory> _directory;
 
-  MusicSheetFileRepository({Future<Directory> directory})
+  MusicSheetFileRepository({Future<Directory>? directory})
       : _directory = directory ?? getApplicationDocumentsDirectory();
 
   @override

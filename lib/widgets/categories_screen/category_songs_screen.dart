@@ -9,13 +9,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class CategorySongsScreen extends StatefulWidget {
   final String category;
   final Set<Song> songs;
-  final Function setFavorite;
+  final Function(SongSummary, bool) setFavorite;
 
   CategorySongsScreen({
-    Key key,
-    @required this.category,
-    @required this.songs,
-    this.setFavorite,
+    Key? key,
+    required this.category,
+    required this.songs,
+    required this.setFavorite,
   }) : super(key: key);
 
   @override
@@ -60,7 +60,7 @@ class _CategorySongsScreenState extends State<CategorySongsScreen> {
                     context,
                     MaterialPageRoute(
                       builder: (context) => SongScreen(
-                        song: widget.songs.lookup(song),
+                        song: widget.songs.lookup(song)!,
                         setFavorite: widget.setFavorite,
                       ),
                     ));

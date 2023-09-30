@@ -16,7 +16,7 @@ class SongScreen extends StatefulWidget {
   final Song song;
   final void Function(SongSummary, bool) setFavorite;
 
-  SongScreen({Key key, @required this.song, this.setFavorite})
+  SongScreen({Key? key, required this.song, required this.setFavorite})
       : super(key: key);
 
   @override
@@ -32,18 +32,18 @@ class _SongScreenState extends State<SongScreen> {
   static const DEFAULT_TEXT_SIZE = 21.0;
   static const k = 1.2;
 
+  _SongScreenState() : _isFavorite = false, _textSize = DEFAULT_TEXT_SIZE;
+
   @override
   void initState() {
     super.initState();
     Wakelock.enable();
-    _textSize = DEFAULT_TEXT_SIZE;
     SharedPreferences.getInstance().then((prefs) {
       setState(() {
         _textSize = prefs.getDouble(PREFS_TEXT_SIZE_KEY) ?? DEFAULT_TEXT_SIZE;
         _isMusicSheetAvailable = isMusicSheetAvailable(prefs.getBool(PREFS_ALLOW_JUBILATE) ?? false);
       });
     });
-    _isFavorite = false;
     checkIfIsFavorite(widget.song).then((result) => {
           setState(() {
             _isFavorite = result;
@@ -141,7 +141,7 @@ class _SongScreenState extends State<SongScreen> {
               )
             ],
           ),
-          body: _showMusicSheet ? MusicSheetBody(widget.song.musicSheet) : SafeArea(child: Column(
+          body: _showMusicSheet ? MusicSheetBody(widget.song.musicSheet!) : SafeArea(child: Column(
             children: <Widget>[
               orientation == Orientation.portrait
                   ? SizedBox(
@@ -239,6 +239,9 @@ class _SongScreenState extends State<SongScreen> {
     if (widget.song.bookId == "J" && !allowJubilate) {
       return false;
     }
-    return widget.song.musicSheet.length > 0;
+    if (widget.song.musicSheet == null) {
+      return false;
+    }
+    return widget.song.musicSheet!.length > 0;
   }
 }

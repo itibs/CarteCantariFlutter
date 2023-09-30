@@ -15,7 +15,7 @@ const String SONGS_FILE = 'songsV2.json';
 class BookFileRepository implements IBookRepository {
   Future<Directory> _directory;
 
-  BookFileRepository({Future<Directory> directory})
+  BookFileRepository({Future<Directory>? directory})
       : _directory = directory ?? getApplicationDocumentsDirectory();
 
   Stream<BookPackage> getBookPackage({bool forceResync = false}) async* {
