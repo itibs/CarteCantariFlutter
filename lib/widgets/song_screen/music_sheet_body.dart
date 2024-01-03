@@ -34,6 +34,7 @@ class MusicSheetBodyState extends State<MusicSheetBody> {
 
   @override
   Widget build(BuildContext context) {
+    final firstMusicSheet = widget.musicSheet.length > 0 ? widget.musicSheet[0] : "";
     return SafeArea(
         child: _hasError
             ? Center(
@@ -45,12 +46,12 @@ class MusicSheetBodyState extends State<MusicSheetBody> {
                       .map((imgBytes) => Image.memory(imgBytes))
                       .toList(),
                 ),
-                musicSheetWidth: null,
+                musicSheetWidth: getCustomWidthFromName(firstMusicSheet),
               ));
   }
 
   int? getCustomWidthFromName(String input) {
-    RegExp exp = new RegExp(r'^W(\d+)\_');
+    RegExp exp = RegExp(r'^W(\d+)_');
 
     if (exp.hasMatch(input)) {
       var match = exp.firstMatch(input);

@@ -18,12 +18,14 @@ class CoverInteractiveViewer extends StatelessWidget {
     final controller = TransformationController();
     return LayoutBuilder(
       builder: (__, constraint) {
+        final imgWidth = musicSheetWidth ?? defaultMusicSheetWidth;
+        final bottomMargin = 500 * imgWidth / defaultMusicSheetWidth;
         return InteractiveViewer(
           transformationController: controller..value = Matrix4.identity() * (constraint.biggest.width / (musicSheetWidth ?? defaultMusicSheetWidth)),
           minScale: 0.1,
           constrained: false,
           child: child,
-          boundaryMargin: EdgeInsets.fromLTRB(0, 0, 0, 500),
+          boundaryMargin: EdgeInsets.fromLTRB(0, 0, 0, bottomMargin),
         );
       },
     );
