@@ -86,16 +86,10 @@ class SongBody extends StatelessWidget {
   }
 
   TextSpan getPitchTextSpan(TextStyle style) {
-    // final keySignatureStyle = TextStyle(
-    //   fontSize: style.fontSize,
-    //   color: style.color.withAlpha(255),
-    //   fontWeight: FontWeight.bold,
-    // );
     if (song.pitch != null) {
       return TextSpan(children: [
         TextSpan(text: "Tonalitate recomandată: ", style: style),
         WidgetSpan(
-            //child: KeySignature(pitch: song.pitch, style: keySignatureStyle),
             child: KeySignature(pitch: song.pitch!),
             alignment: PlaceholderAlignment.middle),
         TextSpan(text: "\n\n\n"),

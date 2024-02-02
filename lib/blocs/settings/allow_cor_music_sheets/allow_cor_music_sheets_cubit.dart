@@ -7,7 +7,7 @@ class AllowCorMusicSheetsCubit extends Cubit<bool> {
 
   void setValue(bool value) {
     SharedPreferences.getInstance().then((prefs) {
-      prefs.setBool(PREFS_ALLOW_JUBILATE, value);
+      prefs.setBool(PREFS_ALLOW_COR, value);
     });
     emit(value);
   }

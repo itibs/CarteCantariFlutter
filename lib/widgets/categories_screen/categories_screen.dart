@@ -55,7 +55,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Categorii"),
+        title: Text("Categorii (doar CC)"),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.tonality),

@@ -2,20 +2,20 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 
-import '../../services/music_sheet_service.dart';
+import '../../../services/music_sheet_service.dart';
 import 'cover_interactive_viewer.dart';
 
-class MusicSheetBody extends StatefulWidget {
+class PhotosMusicSheetBody extends StatefulWidget {
   final List<String> musicSheet;
   final MusicSheetService musicSheetService;
 
-  MusicSheetBody(this.musicSheet) : musicSheetService = new MusicSheetService();
+  PhotosMusicSheetBody(this.musicSheet) : musicSheetService = new MusicSheetService();
 
   @override
-  MusicSheetBodyState createState() => MusicSheetBodyState();
+  PhotosMusicSheetBodyState createState() => PhotosMusicSheetBodyState();
 }
 
-class MusicSheetBodyState extends State<MusicSheetBody> {
+class PhotosMusicSheetBodyState extends State<PhotosMusicSheetBody> {
   var _memImages = <Uint8List>[];
   var _hasError = false;
 

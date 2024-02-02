@@ -20,9 +20,10 @@ const PREFS_SETTINGS_SHOW_KEY_SIGNATURES = "settingsShowKeySignatures";
 const PREFS_PRIORITIZE_MUSIC_SHEETS = "prioritizeMusicSheets";
 const PREFS_TEXT_SIZE_KEY = "textSize";
 const PREFS_ALLOW_JUBILATE = "allowJubilate";
+const PREFS_ALLOW_COR = "allowCor";
 const PREFS_UPDATE_VERSION = "updateVersion";
 
-const LATEST_UPDATE_VERSION = 2;
+const LATEST_UPDATE_VERSION = 3;
 
 const HOSTNAME = "185.177.59.158";
 //const HOSTNAME = "localhost:5001";

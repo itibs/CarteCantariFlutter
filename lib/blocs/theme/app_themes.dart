@@ -11,6 +11,7 @@ final appThemeData = {
   AppTheme.Light: ThemeData(
     brightness: Brightness.light,
     primarySwatch: createMaterialColor(COLOR_DARKER_BLUE),
+    useMaterial3: false,
   ),
   AppTheme.Dark: ThemeData(
     brightness: Brightness.dark,
@@ -18,5 +19,6 @@ final appThemeData = {
     backgroundColor: createMaterialColor(Colors.white),
     appBarTheme: AppBarTheme(color: createMaterialColor(COLOR_DARKER_BLUE)),
     scaffoldBackgroundColor: createMaterialColor(Colors.black),
+    useMaterial3: false,
   ),
 };

@@ -25,7 +25,6 @@ class MusicSheetSettingsScreen extends StatefulWidget {
 }
 
 class _MusicSheetSettingsScreenState extends State<MusicSheetSettingsScreen> {
-  var _longPressCounter = 0;
   var _downloadedFiles = 0;
   var _totalFiles = 0;
   FToast _fToast;
@@ -53,28 +52,7 @@ class _MusicSheetSettingsScreenState extends State<MusicSheetSettingsScreen> {
     final allowCorMusicSheets = context.watch<AllowCorMusicSheetsCubit>();
     return Scaffold(
       appBar: AppBar(
-        title: GestureDetector(
-          child: Text("Opțiuni partituri"),
-          // onTap: () {
-          //   _longPressCounter = 0;
-          //   _tapCounter++;
-          //   if (_tapCounter >= 10) {
-          //     _showModalDialog(context, () {
-          //       allowJubilateMusicSheets.setValue(true);
-          //       showToast("Partiturile Jubilate au fost activate", _fToast);
-          //     });
-          //   }
-          // },
-          onLongPress: () {
-            _longPressCounter++;
-            if (_longPressCounter >= 3) {
-              _showObtainAccessModalDialog(context, () {
-                allowCorMusicSheets.setValue(true);
-                showToast("Partiturile de Cor au fost activate", _fToast);
-              });
-            }
-          },
-        ),
+        title: Text("Opțiuni partituri"),
       ),
       body: Column(
         children: <Widget>[
@@ -132,7 +110,7 @@ class _MusicSheetSettingsScreenState extends State<MusicSheetSettingsScreen> {
             },
           ),
           Divider(),
-          ListTile(
+          !allowJubilateMusicSheets.state ? ListTile(
             title: Text(
               'Obține acces pentru Jubilate',
               style: TextStyle(
@@ -146,13 +124,37 @@ class _MusicSheetSettingsScreenState extends State<MusicSheetSettingsScreen> {
               ),
             ),
             onTap: () {
-              _showObtainAccessModalDialog(context, () {
+              _showObtainAccessModalDialog(context,
+                  "Trimite un e-mail la adresa tiberiu.irg@gmail.com în care să demonstrezi că deții culegerile Jubilate.",
+                      () {
                 allowJubilateMusicSheets.setValue(true);
                 showToast("Partiturile Jubilate au fost activate", _fToast);
               });
             },
-          ),
-          Divider(),
+          ) : Container(),
+          !allowCorMusicSheets.state ? ListTile(
+            title: Text(
+              'Obține acces pentru Cor',
+              style: TextStyle(
+                fontSize: 20,
+              ),
+            ),
+            subtitle: Text(
+              'Pentru a obține un cod de acces trebuie să faci parte din Corul Evanghelic.',
+              style: TextStyle(
+                fontSize: 12,
+              ),
+            ),
+            onTap: () {
+              _showObtainAccessModalDialog(context,
+                  "Trimite un e-mail la adresa tiberiu.irg@gmail.com în care să ceri cod pentru deblocare dacă faci parte din Corul Evanghelic.",
+                      () {
+                allowCorMusicSheets.setValue(true);
+                showToast("Partiturile de Cor au fost activate", _fToast);
+              });
+            },
+          ) : Container(),
+          (!allowCorMusicSheets.state || !allowJubilateMusicSheets.state) ? Divider() : Container(),
           ListTile(
               title: Text(_totalFiles == 0
                   ? "Partituri descărcate: (se încarcă...)"
@@ -162,16 +164,10 @@ class _MusicSheetSettingsScreenState extends State<MusicSheetSettingsScreen> {
     );
   }
 
-  _showObtainAccessModalDialog(context, void Function() callback) {
+  _showObtainAccessModalDialog(context, String message, void Function() callback) {
     final tokenVerifierUrl =
         "https://jtqw98uksa.execute-api.eu-central-1.amazonaws.com/music_sheet_token/";
     final textController = TextEditingController();
-    // final Email email = Email(
-    //   body: '',
-    //   subject: 'Email subject',
-    //   recipients: ['tiberiu.irg@gmail.com'],
-    //   isHTML: false,
-    // );
 
     showDialog(
         context: context,
@@ -184,7 +180,7 @@ class _MusicSheetSettingsScreenState extends State<MusicSheetSettingsScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      "Trimite un e-mail la adresa tiberiu.irg@gmail.com în care să demonstrezi că deții culegerile Jubilate.",
+                      message,
                       textScaleFactor: 0.7,
                     ),
                     // OutlinedButton(
