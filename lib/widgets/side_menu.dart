@@ -62,16 +62,16 @@ class SideMenu extends StatelessWidget {
             ),
             onTap: goToMusicSheetSettings,
           ),
-          // ListTile(
-          //   //leading: Icon(Icons.sync),
-          //   title: Text(
-          //     'Cântări pe categorii',
-          //     style: TextStyle(
-          //       fontSize: 20,
-          //     ),
-          //   ),
-          //   onTap: goToCategories,
-          // ),
+          ListTile(
+            //leading: Icon(Icons.sync),
+            title: Text(
+              'Cântări pe categorii',
+              style: TextStyle(
+                fontSize: 20,
+              ),
+            ),
+            onTap: goToCategories,
+          ),
         ],
       ),
     );

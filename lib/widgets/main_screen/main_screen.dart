@@ -1,3 +1,5 @@
+import 'package:ccc_flutter/blocs/settings/allow_cor_music_sheets/allow_cor_music_sheets.dart';
+import 'package:ccc_flutter/blocs/settings/allow_jubilate_music_sheets/allow_jubilate_music_sheets.dart';
 import 'package:ccc_flutter/blocs/settings/show_key_signatures/show_key_signatures_cubit.dart';
 import 'package:ccc_flutter/blocs/theme/theme_bloc.dart';
 import 'package:ccc_flutter/constants.dart';
@@ -119,6 +121,8 @@ class _MainScreenState extends State<MainScreen> {
       context
           .read<ShowKeySignaturesCubit>()
           .setValue(prefs.getBool(PREFS_SETTINGS_SHOW_KEY_SIGNATURES) ?? false);
+      context.read<AllowJubilateMusicSheetsCubit>().setValue(prefs.getBool(PREFS_ALLOW_JUBILATE) ?? false);
+      context.read<AllowCorMusicSheetsCubit>().setValue(prefs.getBool(PREFS_ALLOW_COR) ?? false);
     });
     developer.log("${DateTime.now()} Init state");
     _loadBooks();
