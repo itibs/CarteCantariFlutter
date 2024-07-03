@@ -9,14 +9,27 @@ enum AppTheme {
 
 final appThemeData = {
   AppTheme.Light: ThemeData(
-    brightness: Brightness.light,
-    primarySwatch: createMaterialColor(COLOR_DARKER_BLUE),
+    colorScheme: ColorScheme.fromSeed(
+      seedColor: COLOR_DARKER_BLUE,
+      brightness: Brightness.light,
+    ),
+    appBarTheme: AppBarTheme(color: createMaterialColor(COLOR_DARKER_BLUE), iconTheme: IconThemeData(color: Colors.white)),
+    useMaterial3: true,
   ),
   AppTheme.Dark: ThemeData(
-    brightness: Brightness.dark,
-    primarySwatch: createMaterialColor(COLOR_BLUE),
-    backgroundColor: createMaterialColor(Colors.white),
-    appBarTheme: AppBarTheme(color: createMaterialColor(COLOR_DARKER_BLUE)),
+    colorScheme: ColorScheme.fromSeed(
+      seedColor: COLOR_DARKER_BLUE,
+      brightness: Brightness.dark,
+    ),
+    appBarTheme: AppBarTheme(color: createMaterialColor(COLOR_DARKER_BLUE), iconTheme: IconThemeData(color: Colors.white)),
+    checkboxTheme: CheckboxThemeData(fillColor: MaterialStateColor.resolveWith((states) {
+      if (states.contains(MaterialState.selected)) {
+        return Colors.white;
+      } else {
+        return createMaterialColor(COLOR_DARKER_BLUE.withAlpha(0));
+      }
+    })),
     scaffoldBackgroundColor: createMaterialColor(Colors.black),
+    useMaterial3: true,
   ),
 };
