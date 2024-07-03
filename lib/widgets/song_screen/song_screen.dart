@@ -3,21 +3,22 @@ import 'package:ccc_flutter/constants.dart';
 import 'package:ccc_flutter/favorites.dart';
 import 'package:ccc_flutter/models/song.dart';
 import 'package:ccc_flutter/models/song_summary.dart';
-import 'package:ccc_flutter/widgets/song_screen/music_sheet_body.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:share/share.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wakelock/wakelock.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
-import 'song_body.dart';
+import 'music_sheet_body/music_sheet_body.dart';
+import 'text_body/song_body.dart';
 
 class SongScreen extends StatefulWidget {
   final Song song;
+  final List<String>? musicSheet;
   final void Function(SongSummary, bool) setFavorite;
 
   SongScreen({Key? key, required this.song, required this.setFavorite})
-      : super(key: key);
+      : musicSheet = song.musicSheetPDFs ?? song.musicSheet, super(key: key);
 
   @override
   _SongScreenState createState() => _SongScreenState();
@@ -37,11 +38,11 @@ class _SongScreenState extends State<SongScreen> {
   @override
   void initState() {
     super.initState();
-    Wakelock.enable();
+    WakelockPlus.enable();
     SharedPreferences.getInstance().then((prefs) {
       setState(() {
         _textSize = prefs.getDouble(PREFS_TEXT_SIZE_KEY) ?? DEFAULT_TEXT_SIZE;
-        _isMusicSheetAvailable = isMusicSheetAvailable(prefs.getBool(PREFS_ALLOW_JUBILATE) ?? false);
+        _isMusicSheetAvailable = isMusicSheetAvailable(prefs.getBool(PREFS_ALLOW_JUBILATE) ?? false, prefs.getBool(PREFS_ALLOW_COR) ?? false);
       });
     });
     checkIfIsFavorite(widget.song).then((result) => {
@@ -53,7 +54,7 @@ class _SongScreenState extends State<SongScreen> {
 
   @override
   void dispose() {
-    Wakelock.disable();
+    WakelockPlus.disable();
     super.dispose();
   }
 
@@ -141,7 +142,7 @@ class _SongScreenState extends State<SongScreen> {
               )
             ],
           ),
-          body: _showMusicSheet ? MusicSheetBody(widget.song.musicSheet!) : SafeArea(child: Column(
+          body: _showMusicSheet ? MusicSheetBody.createMusicSheetBody(widget.musicSheet!) : SafeArea(child: Column(
             children: <Widget>[
               orientation == Orientation.portrait
                   ? SizedBox(
@@ -173,6 +174,7 @@ class _SongScreenState extends State<SongScreen> {
                 _showMusicSheet = !_showMusicSheet;
               });
             },
+            shape: CircleBorder(),
             backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
             child: _showMusicSheet
                 ? const Icon(Icons.notes, color: Colors.white)
@@ -235,13 +237,16 @@ class _SongScreenState extends State<SongScreen> {
     );
   }
 
-  bool isMusicSheetAvailable(bool allowJubilate) {
+  bool isMusicSheetAvailable(bool allowJubilate, bool allowCor) {
     if (widget.song.bookId == "J" && !allowJubilate) {
       return false;
     }
-    if (widget.song.musicSheet == null) {
+    if (widget.song.bookId == "Cor" && !allowCor) {
       return false;
     }
-    return widget.song.musicSheet!.length > 0;
+    if (widget.musicSheet == null) {
+      return false;
+    }
+    return widget.musicSheet!.length > 0;
   }
 }

@@ -51,7 +51,6 @@ class SideMenu extends StatelessWidget {
               'Actualizare cântări',
               style: TextStyle(
                 fontSize: 20,
-                fontWeight: FontWeight.bold,
               ),
             ),
             onTap: syncBooks,
@@ -61,7 +60,6 @@ class SideMenu extends StatelessWidget {
                 'Afișează tonalități',
                 style: TextStyle(
                   fontSize: 20,
-                  fontWeight: FontWeight.bold,
                 ),
               ),
               value: showKeySignatures.state,
@@ -72,7 +70,6 @@ class SideMenu extends StatelessWidget {
               'Opțiuni partituri',
               style: TextStyle(
                 fontSize: 20,
-                fontWeight: FontWeight.bold,
               ),
             ),
             onTap: goToMusicSheetSettings,
