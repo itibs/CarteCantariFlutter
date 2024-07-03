@@ -6,12 +6,14 @@ import 'package:ccc_flutter/helpers.dart';
 import 'package:ccc_flutter/models/song.dart';
 import 'package:ccc_flutter/models/song_summary.dart';
 import 'package:ccc_flutter/services/book_service.dart';
+import 'package:ccc_flutter/services/songs_history_service.dart';
 import 'package:ccc_flutter/widgets/categories_screen/categories_screen.dart';
 import 'package:ccc_flutter/widgets/common/search_box.dart';
 import 'package:ccc_flutter/widgets/common/song_list.dart';
 import 'package:ccc_flutter/widgets/main_screen/horizontal_button.dart';
 import 'package:ccc_flutter/widgets/music_sheet_settings_screen/music_sheet_settings_screen.dart';
 import 'package:ccc_flutter/widgets/side_menu.dart';
+import 'package:ccc_flutter/widgets/songs_history_screen/songs_history_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -36,9 +38,13 @@ class _MainScreenState extends State<MainScreen> {
   var _searchString = "";
   List<SongSummary>? _searchLyricsResults;
   BookService _bookService;
+  SongsHistoryService _songsHistoryService;
   FToast _fToast;
 
-  _MainScreenState() :_bookService = new BookService(), _fToast = FToast();
+  _MainScreenState()
+      : _bookService = new BookService(),
+        _songsHistoryService = new SongsHistoryService(),
+        _fToast = FToast();
 
   String _getBookTitleById(String bookId) {
     return _books.firstWhere((book) => book.id == bookId).title;
@@ -149,6 +155,18 @@ class _MainScreenState extends State<MainScreen> {
                 ? "Cântările au fost actualizate"
                 : "A apărut o eroare la actualizare.\nVerifică dacă ai conexiune la internet.",
             _fToast)),
+        goToSongsHistory: () async {
+          final fullSongs = await _songs;
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => SongsHistoryScreen(
+                  songs: fullSongs,
+                  setFavorite: _setFavorite,
+                ),
+              ));
+          return;
+        },
         goToCategories: () async {
           final fullSongs = await _songs;
           Navigator.push(
@@ -176,7 +194,8 @@ class _MainScreenState extends State<MainScreen> {
         title: DropdownButton<String>(
           value: _crtBookId,
           dropdownColor: Theme.of(context).primaryColor,
-          iconEnabledColor: Theme.of(context).primaryTextTheme.titleLarge!.color,
+          iconEnabledColor:
+              Theme.of(context).primaryTextTheme.titleLarge!.color,
           onChanged: _changeBook,
           items: _books.map((Book book) {
             return DropdownMenuItem<String>(
@@ -301,6 +320,9 @@ class _MainScreenState extends State<MainScreen> {
               songs: _searchLyricsResults ?? _getFilteredSongs(),
               onTap: (SongSummary song) async {
                 final fullSongs = await _songs;
+                if (_songsHistoryService != null) {
+                  _songsHistoryService.addSong(song.id);
+                }
                 Navigator.push(
                     context,
                     MaterialPageRoute(

@@ -5,10 +5,11 @@ import 'package:provider/provider.dart';
 
 class SideMenu extends StatelessWidget {
   final VoidCallback syncBooks;
+  final VoidCallback goToSongsHistory;
   final VoidCallback goToCategories;
   final VoidCallback goToMusicSheetSettings;
 
-  SideMenu({Key? key, required this.syncBooks, required this.goToCategories, required this.goToMusicSheetSettings})
+  SideMenu({Key? key, required this.syncBooks, required this.goToSongsHistory, required this.goToCategories, required this.goToMusicSheetSettings})
       : super(key: key);
 
   @override
@@ -32,6 +33,17 @@ class SideMenu extends StatelessWidget {
                 color: COLOR_DARKER_BLUE,
               ),
             ),
+          ),
+          ListTile(
+            leading: Icon(Icons.history),
+            title: Text(
+              'Istoric cântări',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            onTap: goToSongsHistory,
           ),
           ListTile(
             leading: Icon(Icons.sync),
