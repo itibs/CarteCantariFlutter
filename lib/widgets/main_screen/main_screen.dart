@@ -197,7 +197,7 @@ class _MainScreenState extends State<MainScreen> {
       appBar: AppBar(
         title: DropdownButton<String>(
           value: _crtBookId,
-          dropdownColor: Theme.of(context).primaryColor,
+          dropdownColor: Theme.of(context).appBarTheme.backgroundColor,
           iconEnabledColor:
               Theme.of(context).primaryTextTheme.titleLarge!.color,
           onChanged: _changeBook,
@@ -324,9 +324,7 @@ class _MainScreenState extends State<MainScreen> {
               songs: _searchLyricsResults ?? _getFilteredSongs(),
               onTap: (SongSummary song) async {
                 final fullSongs = await _songs;
-                if (_songsHistoryService != null) {
-                  _songsHistoryService.addSong(song.id);
-                }
+                _songsHistoryService.addSong(song.id);
                 Navigator.push(
                     context,
                     MaterialPageRoute(

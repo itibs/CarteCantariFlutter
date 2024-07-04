@@ -46,20 +46,22 @@ class SideMenu extends StatelessWidget {
             onTap: goToSongsHistory,
           ),
           ListTile(
-            leading: Icon(Icons.sync),
+            leading: Icon(Icons.account_tree),
             title: Text(
-              'Actualizare cântări',
+              'Cântări pe categorii',
               style: TextStyle(
                 fontSize: 20,
+                fontWeight: FontWeight.bold,
               ),
             ),
-            onTap: syncBooks,
+            onTap: goToCategories,
           ),
           CheckboxListTile(
               title: Text(
                 'Afișează tonalități',
                 style: TextStyle(
                   fontSize: 20,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
               value: showKeySignatures.state,
@@ -70,20 +72,21 @@ class SideMenu extends StatelessWidget {
               'Opțiuni partituri',
               style: TextStyle(
                 fontSize: 20,
+                fontWeight: FontWeight.bold,
               ),
             ),
             onTap: goToMusicSheetSettings,
           ),
           ListTile(
-            //leading: Icon(Icons.sync),
+            leading: Icon(Icons.sync),
             title: Text(
-              'Cântări pe categorii',
+              'Actualizare cântări',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            onTap: goToCategories,
+            onTap: syncBooks,
           ),
         ],
       ),

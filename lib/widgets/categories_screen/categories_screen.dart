@@ -44,7 +44,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   Map<String, List<Song>> _getFilteredCategories() {
     final filteredCategories = widget.categories.keys
         .where((String category) =>
-            _searchString == "" || category.contains(_searchString))
+            _searchString == "" || getSearchable(category).contains(_searchString))
         .toList();
 
     return Map.fromIterable(filteredCategories,
@@ -55,7 +55,13 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Categorii (doar CC)"),
+        title: Text(
+          "Categorii (doar CC)",
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.tonality),

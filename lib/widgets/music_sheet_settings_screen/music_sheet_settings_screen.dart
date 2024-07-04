@@ -52,7 +52,13 @@ class _MusicSheetSettingsScreenState extends State<MusicSheetSettingsScreen> {
     final allowCorMusicSheets = context.watch<AllowCorMusicSheetsCubit>();
     return Scaffold(
       appBar: AppBar(
-        title: Text("Opțiuni partituri"),
+        title: Text(
+          "Opțiuni partituri",
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
       body: Column(
         children: <Widget>[
@@ -110,51 +116,58 @@ class _MusicSheetSettingsScreenState extends State<MusicSheetSettingsScreen> {
             },
           ),
           Divider(),
-          !allowJubilateMusicSheets.state ? ListTile(
-            title: Text(
-              'Obține acces pentru Jubilate',
-              style: TextStyle(
-                fontSize: 20,
-              ),
-            ),
-            subtitle: Text(
-              'Pentru a obține un cod de acces trebuie să demonstrezi că deții culegerile (vol 1 & 2).',
-              style: TextStyle(
-                fontSize: 12,
-              ),
-            ),
-            onTap: () {
-              _showObtainAccessModalDialog(context,
-                  "Trimite un e-mail la adresa tiberiu.irg@gmail.com în care să demonstrezi că deții culegerile Jubilate.",
-                      () {
-                allowJubilateMusicSheets.setValue(true);
-                showToast("Partiturile Jubilate au fost activate", _fToast);
-              });
-            },
-          ) : Container(),
-          !allowCorMusicSheets.state ? ListTile(
-            title: Text(
-              'Obține acces pentru Cor',
-              style: TextStyle(
-                fontSize: 20,
-              ),
-            ),
-            subtitle: Text(
-              'Pentru a obține un cod de acces trebuie să faci parte din Corul Evanghelic.',
-              style: TextStyle(
-                fontSize: 12,
-              ),
-            ),
-            onTap: () {
-              _showObtainAccessModalDialog(context,
-                  "Trimite un e-mail la adresa tiberiu.irg@gmail.com în care să ceri cod pentru deblocare dacă faci parte din Corul Evanghelic.",
-                      () {
-                allowCorMusicSheets.setValue(true);
-                showToast("Partiturile de Cor au fost activate", _fToast);
-              });
-            },
-          ) : Container(),
-          (!allowCorMusicSheets.state || !allowJubilateMusicSheets.state) ? Divider() : Container(),
+          !allowJubilateMusicSheets.state
+              ? ListTile(
+                  title: Text(
+                    'Obține acces pentru Jubilate',
+                    style: TextStyle(
+                      fontSize: 20,
+                    ),
+                  ),
+                  subtitle: Text(
+                    'Pentru a obține un cod de acces trebuie să demonstrezi că deții culegerile (vol 1 & 2).',
+                    style: TextStyle(
+                      fontSize: 12,
+                    ),
+                  ),
+                  onTap: () {
+                    _showObtainAccessModalDialog(context,
+                        "Trimite un e-mail la adresa tiberiu.irg@gmail.com în care să demonstrezi că deții culegerile Jubilate.",
+                        () {
+                      allowJubilateMusicSheets.setValue(true);
+                      showToast(
+                          "Partiturile Jubilate au fost activate", _fToast);
+                    });
+                  },
+                )
+              : Container(),
+          !allowCorMusicSheets.state
+              ? ListTile(
+                  title: Text(
+                    'Obține acces pentru Cor',
+                    style: TextStyle(
+                      fontSize: 20,
+                    ),
+                  ),
+                  subtitle: Text(
+                    'Pentru a obține un cod de acces trebuie să faci parte din Corul Evanghelic.',
+                    style: TextStyle(
+                      fontSize: 12,
+                    ),
+                  ),
+                  onTap: () {
+                    _showObtainAccessModalDialog(context,
+                        "Trimite un e-mail la adresa tiberiu.irg@gmail.com în care să ceri cod pentru deblocare dacă faci parte din Corul Evanghelic.",
+                        () {
+                      allowCorMusicSheets.setValue(true);
+                      showToast("Partiturile de Cor au fost activate", _fToast);
+                    });
+                  },
+                )
+              : Container(),
+          (!allowCorMusicSheets.state || !allowJubilateMusicSheets.state)
+              ? Divider()
+              : Container(),
           ListTile(
               title: Text(_totalFiles == 0
                   ? "Partituri descărcate: (se încarcă...)"
@@ -164,7 +177,8 @@ class _MusicSheetSettingsScreenState extends State<MusicSheetSettingsScreen> {
     );
   }
 
-  _showObtainAccessModalDialog(context, String message, void Function() callback) {
+  _showObtainAccessModalDialog(
+      context, String message, void Function() callback) {
     final tokenVerifierUrl =
         "https://jtqw98uksa.execute-api.eu-central-1.amazonaws.com/music_sheet_token/";
     final textController = TextEditingController();
