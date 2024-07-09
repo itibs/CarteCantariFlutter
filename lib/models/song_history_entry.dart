@@ -35,13 +35,13 @@ class SongsHistoryEntry {
 
 String getDayOfWeek(int dayOfWeek) {
   switch (dayOfWeek) {
-    case 0: return "Luni";
-    case 1: return "Marți";
-    case 2: return "Miercuri";
-    case 3: return "Joi";
-    case 4: return "Vineri";
-    case 5: return "Sâmbătă";
-    case 6: return "Duminică";
+    case 1: return "Luni";
+    case 2: return "Marți";
+    case 3: return "Miercuri";
+    case 4: return "Joi";
+    case 5: return "Vineri";
+    case 6: return "Sâmbătă";
+    case 7: return "Duminică";
   }
 
   return "";
