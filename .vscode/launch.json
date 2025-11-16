@@ -10,6 +10,13 @@
             "type": "dart"
         },
         {
+            "name": "Android (AVD)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "deviceId": "emulator-5554"
+        },
+        {
             "name": "web",
             "program": "lib/main.dart",
             "request": "launch",
@@ -17,7 +24,7 @@
             "args": [
                 "--web-port=5000",
                 "--web-enable-expression-evaluation"
-            ],
-        },
+            ]
+        }
     ]
 }
