@@ -1,5 +1,4 @@
-import 'package:flutter/services.dart';
-import 'package:soundpool/soundpool.dart';
+import 'package:just_audio/just_audio.dart';
 import 'dart:developer' as developer;
 
 const CHORDS_SOUNDS_DIRECTORY = "assets/sounds/chords";
@@ -31,46 +30,51 @@ const CHORDS = [
 ];
 
 class PitchSoundService {
-  Soundpool _soundpool;
-  Map<String, Future<int>> _soundIds;
-  Map<String, int> _streamIds;
+  final AudioPlayer _audioPlayer;
+  String? _currentlyPlayingPitch;
 
-  PitchSoundService()
-      : _soundpool = Soundpool.fromOptions(options: SoundpoolOptions(streamType: StreamType.music, maxStreams: 1)),
-        _soundIds = new Map(),
-        _streamIds = new Map() {
-    for (var pitch in CHORDS) {
-      _soundIds[pitch] = _loadChord(pitch);
-    }
+  PitchSoundService() : _audioPlayer = AudioPlayer() {
+    // Preload all chord assets (optional, for faster playback)
+    // This is not strictly necessary but can improve responsiveness
   }
 
   Future<void> playChord(String pitch) async {
-    if (_soundIds.containsKey(pitch)) {
+    if (!CHORDS.contains(pitch)) {
+      developer.log("Unknown pitch: $pitch");
+      return;
+    }
+
+    try {
       developer.log("Playing chord $pitch");
-      if (_streamIds.containsKey(pitch)) {
-        _streamIds.remove(pitch);
+      
+      // Stop any currently playing chord
+      if (_currentlyPlayingPitch != null) {
+        await _audioPlayer.stop();
       }
-      final soundId = await _soundIds[pitch]!;
-      _streamIds[pitch] = await _soundpool.play(soundId);
+
+      // Load and play the new chord
+      final assetPath = "$CHORDS_SOUNDS_DIRECTORY/$pitch.mp3";
+      await _audioPlayer.setAsset(assetPath);
+      _currentlyPlayingPitch = pitch;
+      await _audioPlayer.play();
+    } catch (e) {
+      developer.log("Error playing chord $pitch: $e");
     }
   }
 
   Future<void> stopChord(String pitch) async {
-    const NUM_TRIES = 50;
-    developer.log("Trying to stop chord $pitch");
-    for (var i = 0; i <= NUM_TRIES; i++) {
-      developer.log("Try #$i");
-      if (_streamIds.containsKey(pitch)) {
-        developer.log("Stopping chord $pitch");
-        await _soundpool.stop(_streamIds[pitch]!);
-        return;
+    if (_currentlyPlayingPitch == pitch) {
+      developer.log("Stopping chord $pitch");
+      try {
+        await _audioPlayer.stop();
+        _currentlyPlayingPitch = null;
+      } catch (e) {
+        developer.log("Error stopping chord $pitch: $e");
       }
-      await Future.delayed(Duration(milliseconds: 10));
     }
   }
 
-  Future<int> _loadChord(String pitch) async {
-    final asset = await rootBundle.load("$CHORDS_SOUNDS_DIRECTORY/$pitch.mp3");
-    return await _soundpool.load(asset);
+  Future<void> dispose() async {
+    await _audioPlayer.dispose();
   }
 }

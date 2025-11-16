@@ -25,6 +25,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.13.0"
+  audio_session:
+    dependency: transitive
+    description:
+      name: audio_session
+      sha256: "2b7fff16a552486d078bfc09a8cde19f426dc6d6329262b684182597bec5b1ac"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.25"
   bloc:
     dependency: transitive
     description:
@@ -248,6 +256,30 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.19.0"
+  just_audio:
+    dependency: "direct main"
+    description:
+      name: just_audio
+      sha256: f978d5b4ccea08f267dae0232ec5405c1b05d3f3cd63f82097ea46c015d5c09e
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.9.46"
+  just_audio_platform_interface:
+    dependency: transitive
+    description:
+      name: just_audio_platform_interface
+      sha256: "2532c8d6702528824445921c5ff10548b518b13f808c2e34c2fd54793b999a6a"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.6.0"
+  just_audio_web:
+    dependency: transitive
+    description:
+      name: just_audio_web
+      sha256: "6ba8a2a7e87d57d32f0f7b42856ade3d6a9fbe0f1a11fabae0a4f00bb73f0663"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.4.16"
   leak_tracker:
     dependency: transitive
     description:
@@ -401,7 +433,7 @@ packages:
     source: hosted
     version: "3.1.6"
   plugin_platform_interface:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: plugin_platform_interface
       sha256: "4820fbfdb9478b1ebae27888254d445073732dae3d6ea81f0b7e06d5dedc3f02"
@@ -424,6 +456,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.1.5+1"
+  rxdart:
+    dependency: transitive
+    description:
+      name: rxdart
+      sha256: "5c3004a4a8dbb94bd4bf5412a4def4acdaa12e12f269737a5751369e12d1a962"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.28.0"
   share_plus:
     dependency: "direct main"
     description:
@@ -501,38 +541,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  soundpool:
-    dependency: "direct main"
-    description:
-      name: soundpool
-      sha256: fe7302005759d6a3561de1711e3ea818b1ba025a62375b469196dda5b654bd38
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.4.1"
-  soundpool_macos:
-    dependency: transitive
-    description:
-      name: soundpool_macos
-      sha256: e0440a19d4e8f344dace336923b369184e91eebbbd8348266f4434b675bd15db
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.3.0"
-  soundpool_platform_interface:
-    dependency: "direct main"
-    description:
-      name: soundpool_platform_interface
-      sha256: "7c6666e19319151b2036c4fc9b6da3a83f2ebf4097989e6ba1c2b0bfe3612e9f"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.2.0"
-  soundpool_web:
-    dependency: "direct main"
-    description:
-      name: soundpool_web
-      sha256: "3d1eb8d6cceb8a0aec38ff9aec4fbd11a9a8101d27b27a6eb29305b83d46aee5"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.3.0"
   source_span:
     dependency: transitive
     description:
@@ -645,6 +653,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "31.2.10"
+  synchronized:
+    dependency: transitive
+    description:
+      name: synchronized
+      sha256: c254ade258ec8282947a0acbbc90b9575b4f19673533ee46f2f6e9b3aeefd7c0
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.4.0"
   term_glyph:
     dependency: transitive
     description:
