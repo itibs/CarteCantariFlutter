@@ -123,10 +123,8 @@ class _SongScreenState extends State<SongScreen> {
               ),
               IconButton(
                 icon: Icon(Icons.share),
-                onPressed: () {
-                  Share.share(
-                    widget.song.text,
-                  );
+                onPressed: () async {
+                  await SharePlus.instance.share(ShareParams(text: widget.song.text));
                 },
                 iconSize: 30.0,
               ),

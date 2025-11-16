@@ -17,11 +17,11 @@ class HorizontalButton extends StatelessWidget {
       return TextButton(
           onPressed: callback,
           style: ButtonStyle(
-            shape: MaterialStateProperty.all(RoundedRectangleBorder(
+            shape: WidgetStateProperty.all(RoundedRectangleBorder(
               borderRadius: new BorderRadius.circular(10.0),
               side: BorderSide(color: lyricSearchButtonColor),
             )),
-            backgroundColor: MaterialStateProperty.all(lyricSearchButtonColor),
+            backgroundColor: WidgetStateProperty.all(lyricSearchButtonColor),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,

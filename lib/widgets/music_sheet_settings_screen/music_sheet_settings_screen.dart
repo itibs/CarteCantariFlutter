@@ -195,7 +195,7 @@ class _MusicSheetSettingsScreenState extends State<MusicSheetSettingsScreen> {
                   children: [
                     Text(
                       message,
-                      textScaleFactor: 0.7,
+                      textScaler: TextScaler.linear(0.7),
                     ),
                     // OutlinedButton(
                     //   child: Text("Trimite email pentru a obține cod"),
@@ -220,7 +220,7 @@ class _MusicSheetSettingsScreenState extends State<MusicSheetSettingsScreen> {
                         padding: EdgeInsets.fromLTRB(0, 20, 0, 0),
                         child: Text(
                           "Introdu codul de acces:",
-                          textScaleFactor: 0.7,
+                          textScaler: TextScaler.linear(0.7),
                         )),
                     TextField(
                       controller: textController,

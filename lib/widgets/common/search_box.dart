@@ -54,13 +54,13 @@ class SearchBoxState extends State<SearchBox> {
         focusedBorder: OutlineInputBorder(
           borderSide: BorderSide(
               color:
-                  isDark ? COLOR_DARKER_BLUE.withOpacity(0.9) : Colors.black12),
+                  isDark ? COLOR_DARKER_BLUE.withValues(alpha: 0.9) : Colors.black12),
           borderRadius: BorderRadius.circular(10.0),
         ),
         enabledBorder: OutlineInputBorder(
           borderSide: BorderSide(
               color:
-                  isDark ? COLOR_DARKER_BLUE.withOpacity(0.9) : Colors.black12),
+                  isDark ? COLOR_DARKER_BLUE.withValues(alpha: 0.9) : Colors.black12),
           borderRadius: BorderRadius.circular(10.0),
         ),
         contentPadding: new EdgeInsets.all(0),

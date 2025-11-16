@@ -257,7 +257,7 @@ class _MainScreenState extends State<MainScreen> {
                             _searchString.trim().length > 0,
                         text: "Caută în versuri",
                         color: COLOR_DARKER_BLUE,
-                        darkColor: COLOR_LIGHT_BLUE.withOpacity(0.4),
+                        darkColor: COLOR_LIGHT_BLUE.withValues(alpha: 0.4),
                       ),
                       HorizontalButton(
                         callback: () => _changeBook(ALL_SONGS_BOOK_ID),
@@ -265,7 +265,7 @@ class _MainScreenState extends State<MainScreen> {
                             _searchString.trim().length > 0,
                         text: "Caută în toate cărțile",
                         color: COLOR_DARKER_BLUE,
-                        darkColor: COLOR_LIGHT_BLUE.withOpacity(0.4),
+                        darkColor: COLOR_LIGHT_BLUE.withValues(alpha: 0.4),
                       ),
                       SearchBox(
                           txtController: _txtController,
@@ -302,7 +302,7 @@ class _MainScreenState extends State<MainScreen> {
                             _searchString.trim().length > 0,
                         text: "Versuri",
                         color: COLOR_DARKER_BLUE,
-                        darkColor: COLOR_LIGHT_BLUE.withOpacity(0.4),
+                        darkColor: COLOR_LIGHT_BLUE.withValues(alpha: 0.4),
                       ),
                     ),
                     Padding(
@@ -313,7 +313,7 @@ class _MainScreenState extends State<MainScreen> {
                             _searchString.trim().length > 0,
                         text: "Toate cărțile",
                         color: COLOR_DARKER_BLUE,
-                        darkColor: COLOR_LIGHT_BLUE.withOpacity(0.4),
+                        darkColor: COLOR_LIGHT_BLUE.withValues(alpha: 0.4),
                       ),
                     ),
                   ],

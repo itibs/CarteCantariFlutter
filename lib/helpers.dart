@@ -4,7 +4,9 @@ import 'package:fluttertoast/fluttertoast.dart';
 MaterialColor createMaterialColor(Color color) {
   List strengths = <double>[.05];
   Map<int, Color> swatch = <int, Color>{};
-  final int r = color.red, g = color.green, b = color.blue;
+  final int r = (color.r * 255.0).round() & 0xff;
+  final int g = (color.g * 255.0).round() & 0xff;
+  final int b = (color.b * 255.0).round() & 0xff;
 
   for (int i = 1; i < 10; i++) {
     strengths.add(0.1 * i);
@@ -18,7 +20,7 @@ MaterialColor createMaterialColor(Color color) {
       1,
     );
   });
-  return MaterialColor(color.value, swatch);
+  return MaterialColor(color.toARGB32(), swatch);
 }
 
 String getSearchable(String s) {

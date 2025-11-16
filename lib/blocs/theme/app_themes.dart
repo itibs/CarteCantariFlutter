@@ -14,7 +14,7 @@ final appThemeData = {
       brightness: Brightness.light,
     ),
     appBarTheme: AppBarTheme(
-        color: createMaterialColor(COLOR_DARKER_BLUE),
+        backgroundColor: createMaterialColor(COLOR_DARKER_BLUE),
         foregroundColor: Colors.white,
         iconTheme: IconThemeData(color: Colors.white)),
     useMaterial3: true,
@@ -25,11 +25,11 @@ final appThemeData = {
       brightness: Brightness.dark,
     ),
     appBarTheme: AppBarTheme(
-        color: createMaterialColor(COLOR_DARKER_BLUE),
+        backgroundColor: createMaterialColor(COLOR_DARKER_BLUE),
         iconTheme: IconThemeData(color: Colors.white)),
     checkboxTheme:
-        CheckboxThemeData(fillColor: MaterialStateColor.resolveWith((states) {
-      if (states.contains(MaterialState.selected)) {
+        CheckboxThemeData(fillColor: WidgetStateColor.resolveWith((states) {
+      if (states.contains(WidgetState.selected)) {
         return Colors.white;
       } else {
         return createMaterialColor(COLOR_DARKER_BLUE.withAlpha(0));
