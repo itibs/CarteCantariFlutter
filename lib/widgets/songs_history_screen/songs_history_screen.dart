@@ -2,6 +2,7 @@ import 'package:ccc_flutter/blocs/theme/theme_bloc.dart';
 import 'package:ccc_flutter/helpers.dart';
 import 'package:ccc_flutter/models/song.dart';
 import 'package:ccc_flutter/models/song_history_entry.dart';
+import 'package:ccc_flutter/services/book_service.dart';
 import 'package:ccc_flutter/services/songs_history_service.dart';
 import 'package:ccc_flutter/widgets/common/search_box.dart';
 import 'package:ccc_flutter/widgets/songs_history_screen/songs_history_list.dart';
@@ -13,10 +14,15 @@ import '../song_screen/song_screen.dart';
 
 class SongsHistoryScreen extends StatefulWidget {
   final Set<Song> songs;
+  final BookService bookService;
   final Function(SongSummary, bool) setFavorite;
 
-  SongsHistoryScreen({Key? key, required this.songs, required this.setFavorite})
-      : super(key: key);
+  SongsHistoryScreen({
+    Key? key,
+    required this.songs,
+    required this.bookService,
+    required this.setFavorite,
+  }) : super(key: key);
 
   @override
   _SongsHistoryScreenState createState() => _SongsHistoryScreenState();
@@ -116,6 +122,7 @@ class _SongsHistoryScreenState extends State<SongsHistoryScreen> {
                     MaterialPageRoute(
                       builder: (context) => SongScreen(
                         song: song,
+                        bookService: widget.bookService,
                         setFavorite: widget.setFavorite,
                       ),
                     ));

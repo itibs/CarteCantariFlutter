@@ -1,25 +1,26 @@
 import 'dart:convert';
-import 'package:universal_html/html.dart';
+
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'favorites_repository.dart';
 
 const String FAVORITES_STORAGE_KEY = 'favorites';
 
 class FavoritesWebRepository implements IFavoritesRepository {
-  final Storage _localStorage = window.localStorage;
-
-  Future<Set<String>> getFavorites() {
-    if (!_localStorage.containsKey(FAVORITES_STORAGE_KEY)) {
-      return Future(() => Set<String>());
+  Future<Set<String>> getFavorites() async {
+    final prefs = await SharedPreferences.getInstance();
+    final strFavoritesJson = prefs.getString(FAVORITES_STORAGE_KEY);
+    if (strFavoritesJson == null) {
+      return <String>{};
     }
-    final strFavoritesJson = _localStorage[FAVORITES_STORAGE_KEY]!;
     final favorites =
         (json.decode(strFavoritesJson) as List<dynamic>).cast<String>();
-    return Future(() => favorites.toSet());
+    return favorites.toSet();
   }
 
   Future<void> storeFavorites(Set<String> favorites) async {
+    final prefs = await SharedPreferences.getInstance();
     final strFavoritesJson = json.encode(favorites.toList());
-    _localStorage[FAVORITES_STORAGE_KEY] = strFavoritesJson;
+    await prefs.setString(FAVORITES_STORAGE_KEY, strFavoritesJson);
   }
 }

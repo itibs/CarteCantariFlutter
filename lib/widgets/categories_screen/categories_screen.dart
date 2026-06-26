@@ -2,6 +2,7 @@ import 'package:ccc_flutter/blocs/theme/theme_bloc.dart';
 import 'package:ccc_flutter/helpers.dart';
 import 'package:ccc_flutter/models/song.dart';
 import 'package:ccc_flutter/models/song_summary.dart';
+import 'package:ccc_flutter/services/book_service.dart';
 import 'package:ccc_flutter/widgets/categories_screen/category_songs_screen.dart';
 import 'package:ccc_flutter/widgets/categories_screen/category_list.dart';
 import 'package:ccc_flutter/widgets/common/search_box.dart';
@@ -10,11 +11,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CategoriesScreen extends StatefulWidget {
   final Set<Song> songs;
+  final BookService bookService;
   final Function(SongSummary, bool) setFavorite;
   final Map<String, List<Song>> categories;
 
-  CategoriesScreen({Key? key, required this.songs, required this.setFavorite})
-      : categories = getCategories(songs.toList()),
+  CategoriesScreen({
+    Key? key,
+    required this.songs,
+    required this.bookService,
+    required this.setFavorite,
+  })  : categories = getCategories(songs.toList()),
         super(key: key);
 
   @override
@@ -110,6 +116,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                       builder: (context) => CategorySongsScreen(
                         category: category,
                         songs: songs.toSet(),
+                        bookService: widget.bookService,
                         setFavorite: widget.setFavorite,
                       ),
                     ));

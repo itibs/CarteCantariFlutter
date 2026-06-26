@@ -1,6 +1,7 @@
 import 'package:ccc_flutter/blocs/theme/theme_bloc.dart';
 import 'package:ccc_flutter/models/song.dart';
 import 'package:ccc_flutter/models/song_summary.dart';
+import 'package:ccc_flutter/services/book_service.dart';
 import 'package:ccc_flutter/widgets/common/song_list.dart';
 import 'package:ccc_flutter/widgets/song_screen/song_screen.dart';
 import 'package:flutter/material.dart';
@@ -9,12 +10,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class CategorySongsScreen extends StatefulWidget {
   final String category;
   final Set<Song> songs;
+  final BookService bookService;
   final Function(SongSummary, bool) setFavorite;
 
   CategorySongsScreen({
     Key? key,
     required this.category,
     required this.songs,
+    required this.bookService,
     required this.setFavorite,
   }) : super(key: key);
 
@@ -61,6 +64,7 @@ class _CategorySongsScreenState extends State<CategorySongsScreen> {
                     MaterialPageRoute(
                       builder: (context) => SongScreen(
                         song: widget.songs.lookup(song)!,
+                        bookService: widget.bookService,
                         setFavorite: widget.setFavorite,
                       ),
                     ));

@@ -1,8 +1,8 @@
 import 'package:ccc_flutter/blocs/theme/theme_bloc.dart';
 import 'package:ccc_flutter/constants.dart';
-import 'package:ccc_flutter/favorites.dart';
 import 'package:ccc_flutter/models/song.dart';
 import 'package:ccc_flutter/models/song_summary.dart';
+import 'package:ccc_flutter/services/book_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:share_plus/share_plus.dart';
@@ -15,10 +15,16 @@ import 'text_body/song_body.dart';
 class SongScreen extends StatefulWidget {
   final Song song;
   final List<String>? musicSheet;
+  final BookService bookService;
   final void Function(SongSummary, bool) setFavorite;
 
-  SongScreen({Key? key, required this.song, required this.setFavorite})
-      : musicSheet = song.musicSheetPDFs ?? song.musicSheet, super(key: key);
+  SongScreen({
+    Key? key,
+    required this.song,
+    required this.bookService,
+    required this.setFavorite,
+  }) : musicSheet = song.musicSheetPDFs ?? song.musicSheet,
+       super(key: key);
 
   @override
   _SongScreenState createState() => _SongScreenState();
@@ -45,11 +51,13 @@ class _SongScreenState extends State<SongScreen> {
         _isMusicSheetAvailable = isMusicSheetAvailable(prefs.getBool(PREFS_ALLOW_JUBILATE) ?? false, prefs.getBool(PREFS_ALLOW_COR) ?? false);
       });
     });
-    checkIfIsFavorite(widget.song).then((result) => {
-          setState(() {
-            _isFavorite = result;
-          })
+    widget.bookService.checkIsFavorite(widget.song).then((result) {
+      if (mounted) {
+        setState(() {
+          _isFavorite = result;
         });
+      }
+    });
   }
 
   @override
@@ -115,7 +123,7 @@ class _SongScreenState extends State<SongScreen> {
                 onPressed: () {
                   setState(() {
                     _isFavorite = !_isFavorite;
-                    setFavorite(widget.song, _isFavorite);
+                    widget.bookService.setFavorite(widget.song, _isFavorite);
                     widget.setFavorite(widget.song, _isFavorite);
                   });
                 },

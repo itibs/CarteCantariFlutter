@@ -1,12 +1,12 @@
 {
-    "name": "ccc_flutter",
-    "short_name": "ccc_flutter",
+    "name": "Carte Cântări Carol",
+    "short_name": "Carte Cântări",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
-    "orientation": "portrait-primary",
+    "background_color": "#0D3949",
+    "theme_color": "#0D3949",
+    "description": "Carte Cântări Carol",
+    "orientation": "any",
     "prefer_related_applications": false,
     "icons": [
         {

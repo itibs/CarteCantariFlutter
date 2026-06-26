@@ -166,6 +166,7 @@ class _MainScreenState extends State<MainScreen> {
               MaterialPageRoute(
                 builder: (context) => SongsHistoryScreen(
                   songs: fullSongs,
+                  bookService: _bookService,
                   setFavorite: _setFavorite,
                 ),
               ));
@@ -178,6 +179,7 @@ class _MainScreenState extends State<MainScreen> {
               MaterialPageRoute(
                 builder: (context) => CategoriesScreen(
                   songs: fullSongs,
+                  bookService: _bookService,
                   setFavorite: _setFavorite,
                 ),
               ));
@@ -330,6 +332,7 @@ class _MainScreenState extends State<MainScreen> {
                     MaterialPageRoute(
                       builder: (context) => SongScreen(
                         song: fullSongs.lookup(song)!,
+                        bookService: _bookService,
                         setFavorite: _setFavorite,
                       ),
                     ));

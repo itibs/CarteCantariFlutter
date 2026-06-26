@@ -20,16 +20,21 @@ class BookService {
       {IBookRepository? bookRepository,
       IFavoritesRepository? favoritesRepository})
       : _bookRepository = bookRepository ??
-            (kIsWeb ? new BookServerRepository() : new BookMobileRepository()),
+            (kIsWeb ? BookServerRepository() : BookMobileRepository()),
         _favoritesRepository = favoritesRepository ??
             (kIsWeb
-                ? new FavoritesWebRepository()
-                : new FavoritesMobileRepository()) {
+                ? FavoritesWebRepository()
+                : FavoritesMobileRepository()) {
     _favoritesFuture = _favoritesRepository.getFavorites();
   }
 
+  Future<void> _ensureFavoritesLoaded() async {
+    _favorites ??= await _favoritesFuture;
+  }
+
   Stream<BookPackage> getBookPackage({bool forceResync = false}) async* {
-    final favorites = _favorites ?? await _favoritesFuture;
+    await _ensureFavoritesLoaded();
+    final favorites = _favorites!;
 
     await for (var bookPackage
         in _bookRepository.getBookPackage(forceResync: forceResync)) {
@@ -37,7 +42,7 @@ class BookService {
       final allSongs =
           realBooks.map((b) => b.songSummaries).expand((l) => l).toList();
       final favSongs = allSongs
-          .where((s) => favorites!.contains(s.id) || favorites.contains(s.idV1))
+          .where((s) => favorites.contains(s.id) || favorites.contains(s.idV1))
           .toList();
       final allSongsBook = Book(
         title: "Toate cântările",
@@ -49,7 +54,7 @@ class BookService {
         id: FAVORITES_ID,
         songSummaries: favSongs,
       );
-      yield new BookPackage(
+      yield BookPackage(
           books: []
             ..add(allSongsBook)
             ..addAll(realBooks)
@@ -59,17 +64,19 @@ class BookService {
   }
 
   Future<bool> checkIsFavorite(SongSummary song) async {
-    final crtFavorites = await _favoritesRepository.getFavorites();
-    return crtFavorites.contains(song.id) || crtFavorites.contains(song.idV1);
+    await _ensureFavoritesLoaded();
+    return _favorites!.contains(song.id) || _favorites!.contains(song.idV1);
   }
 
-  Future<void> setFavorite(String songId, bool value) async {
-    final favorites = _favorites ?? await _favoritesFuture;
+  Future<void> setFavorite(SongSummary song, bool value) async {
+    await _ensureFavoritesLoaded();
+    final favorites = _favorites!;
 
     if (value) {
-      favorites!.add(songId);
-    } else if (favorites!.contains(songId)) {
-      favorites.remove(songId);
+      favorites.add(song.id);
+    } else {
+      favorites.remove(song.id);
+      favorites.remove(song.idV1);
     }
 
     await _favoritesRepository.storeFavorites(favorites);
