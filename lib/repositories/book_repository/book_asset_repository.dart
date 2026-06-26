@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:developer' as developer;
 
@@ -13,10 +14,21 @@ const String SONGS_ASSET = 'songs.json';
 
 class BookAssetRepository implements IBookRepository {
   Stream<BookPackage> getBookPackage({bool forceResync = false}) async* {
+    // Start both reads in parallel.
+    final booksFuture = fetchBooksFromAssets();
+    final songsFuture = fetchSongsFromAssets();
+
+    // Songs (the heavy payload) are loaded lazily: consumers only await them
+    // when needed (e.g. lyric search). Attach a no-op handler so a read failure
+    // can't surface as an unhandled async error before a consumer awaits it.
+    // Consumers that do await `songsFuture` still observe the original error.
+    unawaited(songsFuture.catchError((Object _) => <Song>{}));
+
     try {
-      final books = fetchBooksFromAssets();
-      final songs = fetchSongsFromAssets();
-      yield new BookPackage(books: await books, songs: songs);
+      final books = await booksFuture;
+      // Emit as soon as the lightweight books are ready so the UI can render the
+      // song lists without waiting for the heavier songs file to finish reading.
+      yield new BookPackage(books: books, songs: songsFuture);
     } catch (e) {}
   }
 
