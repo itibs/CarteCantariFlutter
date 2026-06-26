@@ -3,6 +3,7 @@ import 'package:ccc_flutter/constants.dart';
 import 'package:ccc_flutter/models/song.dart';
 import 'package:ccc_flutter/models/song_summary.dart';
 import 'package:ccc_flutter/services/book_service.dart';
+import 'package:ccc_flutter/widgets/common/app_scrollbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:share_plus/share_plus.dart';
@@ -149,6 +150,7 @@ class _SongScreenState extends State<SongScreen> {
             ],
           ),
           body: _showMusicSheet ? MusicSheetBody.createMusicSheetBody(widget.musicSheet!) : SafeArea(child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
               orientation == Orientation.portrait
                   ? SizedBox(
@@ -165,10 +167,13 @@ class _SongScreenState extends State<SongScreen> {
               )
                   : Container(),
               Expanded(
-                child: SingleChildScrollView(
-                  child: SongBody(
-                    song: widget.song,
-                    textSize: _textSize * k - (k - 1) * 20.0,
+                child: AppScrollbar(
+                  builder: (context, controller) => SingleChildScrollView(
+                    controller: controller,
+                    child: SongBody(
+                      song: widget.song,
+                      textSize: _textSize * k - (k - 1) * 20.0,
+                    ),
                   ),
                 ),
               ),

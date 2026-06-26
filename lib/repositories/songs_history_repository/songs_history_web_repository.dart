@@ -13,7 +13,8 @@ class SongsHistoryWebRepository implements ISongsHistoryRepository {
     final prefs = await SharedPreferences.getInstance();
     final stored = prefs.getString(SONGS_HISTORY_STORAGE_KEY);
     if (stored == null) {
-      return List<SongsHistoryEntry>.empty();
+      // Must be growable: addSong() calls .add() on the returned list.
+      return <SongsHistoryEntry>[];
     }
     final encodedLines =
         (json.decode(stored) as List<dynamic>).cast<String>();

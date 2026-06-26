@@ -1,5 +1,6 @@
 import 'package:ccc_flutter/constants.dart';
 import 'package:ccc_flutter/models/song.dart';
+import 'package:ccc_flutter/widgets/common/app_scrollbar.dart';
 import 'package:flutter/material.dart';
 
 class CategoryList extends StatelessWidget {
@@ -13,13 +14,16 @@ class CategoryList extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final categoriesList = categories.keys.toList();
 
-    return ListView.builder(
-        padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-        itemCount: categoriesList.length,
-        itemBuilder: (context, i) {
-          final index = i;
-          return _buildRow(categoriesList[index], isDark);
-        });
+    return AppScrollbar(
+      builder: (context, controller) => ListView.builder(
+          controller: controller,
+          padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+          itemCount: categoriesList.length,
+          itemBuilder: (context, i) {
+            final index = i;
+            return _buildRow(categoriesList[index], isDark);
+          }),
+    );
   }
 
   Widget _buildRow(String category, bool isDark) {

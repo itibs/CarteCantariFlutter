@@ -1,5 +1,6 @@
 import 'package:ccc_flutter/constants.dart';
 import 'package:ccc_flutter/models/song_summary.dart';
+import 'package:ccc_flutter/widgets/common/app_scrollbar.dart';
 import 'package:flutter/material.dart';
 
 class SongList extends StatelessWidget {
@@ -12,13 +13,16 @@ class SongList extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return ListView.builder(
-        padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-        itemCount: songs.length,
-        itemBuilder: (context, i) {
-          final index = i;
-          return _buildRow(songs[index], isDark);
-        });
+    return AppScrollbar(
+      builder: (context, controller) => ListView.builder(
+          controller: controller,
+          padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+          itemCount: songs.length,
+          itemBuilder: (context, i) {
+            final index = i;
+            return _buildRow(songs[index], isDark);
+          }),
+    );
   }
 
   Widget _buildRow(SongSummary song, bool isDark) {

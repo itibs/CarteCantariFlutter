@@ -1,6 +1,7 @@
 import 'package:ccc_flutter/constants.dart';
 import 'package:ccc_flutter/models/song.dart';
 import 'package:ccc_flutter/models/song_history_entry.dart';
+import 'package:ccc_flutter/widgets/common/app_scrollbar.dart';
 import 'package:flutter/material.dart';
 
 class SongsHistoryList extends StatelessWidget {
@@ -15,13 +16,16 @@ class SongsHistoryList extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return ListView.builder(
-        padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-        itemCount: songsHistory.length,
-        itemBuilder: (context, i) {
-          final index = i;
-          return _buildRow(songsHistory[index], isDark);
-        });
+    return AppScrollbar(
+      builder: (context, controller) => ListView.builder(
+          controller: controller,
+          padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+          itemCount: songsHistory.length,
+          itemBuilder: (context, i) {
+            final index = i;
+            return _buildRow(songsHistory[index], isDark);
+          }),
+    );
   }
 
   Widget _buildRow(SongsHistoryEntry entry, bool isDark) {
