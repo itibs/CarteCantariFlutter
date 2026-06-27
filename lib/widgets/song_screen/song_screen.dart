@@ -149,7 +149,9 @@ class _SongScreenState extends State<SongScreen> {
               )
             ],
           ),
-          body: _showMusicSheet ? MusicSheetBody.createMusicSheetBody(widget.musicSheet!) : SafeArea(child: Column(
+          body: _showMusicSheet ? MusicSheetBody.createMusicSheetBody(widget.musicSheet!) : SafeArea(child: Center(child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 800),
+            child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
               orientation == Orientation.portrait
@@ -178,7 +180,7 @@ class _SongScreenState extends State<SongScreen> {
                 ),
               ),
             ],
-          )),
+          )))),
           floatingActionButton: _isMusicSheetAvailable ? FloatingActionButton(
             onPressed: () {
               setState(() {
