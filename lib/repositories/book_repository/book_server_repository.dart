@@ -3,11 +3,20 @@ import 'dart:convert';
 import 'package:ccc_flutter/models/book.dart';
 import 'package:ccc_flutter/models/book_package.dart';
 import 'package:ccc_flutter/models/song.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import 'book_repository.dart';
 
 const String BOOKS_FILE = 'booksV2.json';
+
+const String _PROD_API_ID = 'kfq5qib3ec';
+const String _DEV_API_ID = '7n1lfiqzdf';
+
+// Use the production API only for release builds; dev/staging builds hit the dev API.
+const String _API_ID = kReleaseMode ? _PROD_API_ID : _DEV_API_ID;
+const String _API_BASE_URL =
+    'https://$_API_ID.execute-api.eu-central-1.amazonaws.com/Prod';
 
 class BookServerRepository implements IBookRepository {
   Stream<BookPackage> getBookPackage({bool forceResync = false}) async* {
@@ -20,7 +29,7 @@ class BookServerRepository implements IBookRepository {
   }
 
   Future<List<Book>> fetchBooksFromServer() async {
-    final url = 'https://kfq5qib3ec.execute-api.eu-central-1.amazonaws.com/Prod/books';
+    final url = '$_API_BASE_URL/books';
     final response = await http.get(Uri.parse(url));
 
     if (response.statusCode == 200) {
@@ -44,7 +53,7 @@ class BookServerRepository implements IBookRepository {
 
   Future<List<Song>> fetchBookSongsFromServer(String bookId) async {
     final response =
-        await http.get(Uri.parse('https://kfq5qib3ec.execute-api.eu-central-1.amazonaws.com/Prod/books/' + bookId + "/songs"));
+        await http.get(Uri.parse('$_API_BASE_URL/books/' + bookId + "/songs"));
     if (response.statusCode == 200) {
       Map<String, dynamic> resp = json.decode(response.body);
       return (resp['songs'] as List)
