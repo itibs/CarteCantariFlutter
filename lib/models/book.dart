@@ -2,6 +2,7 @@ import 'song_summary.dart';
 
 const String ALL_SONGS_BOOK_ID = "ALL_SONGS";
 const String FAVORITES_ID = "FAVORITES";
+const String CUSTOM_LIST_ID_PREFIX = "CUSTOM_LIST:";
 
 class Book {
   final String id;

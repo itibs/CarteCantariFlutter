@@ -11,6 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 import 'music_sheet_body/music_sheet_body.dart';
+import 'save_to_list_sheet.dart';
 import 'text_body/song_body.dart';
 
 class SongScreen extends StatefulWidget {
@@ -127,6 +128,20 @@ class _SongScreenState extends State<SongScreen> {
                     widget.bookService.setFavorite(widget.song, _isFavorite);
                     widget.setFavorite(widget.song, _isFavorite);
                   });
+                },
+                iconSize: 30.0,
+              ),
+              IconButton(
+                icon: Icon(Icons.playlist_add),
+                onPressed: () {
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    builder: (context) => SaveToListSheet(
+                      song: widget.song,
+                      bookService: widget.bookService,
+                    ),
+                  );
                 },
                 iconSize: 30.0,
               ),
@@ -263,3 +278,5 @@ class _SongScreenState extends State<SongScreen> {
     return widget.musicSheet!.length > 0;
   }
 }
+
+

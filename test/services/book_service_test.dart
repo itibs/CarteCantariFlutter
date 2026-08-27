@@ -1,5 +1,6 @@
 import 'package:ccc_flutter/models/book.dart';
 import 'package:ccc_flutter/models/book_package.dart';
+import 'package:ccc_flutter/models/custom_list.dart';
 import 'package:ccc_flutter/models/song.dart';
 import 'package:ccc_flutter/models/song_summary.dart';
 import 'package:ccc_flutter/services/book_service.dart';
@@ -23,6 +24,7 @@ BookPackage packageWith(List<Book> books) => BookPackage(
 void main() {
   late MockBookRepository bookRepository;
   late MockFavoritesRepository favoritesRepository;
+  late MockCustomListsRepository customListsRepository;
 
   final bookCC = Book(
     title: 'Cartea CC',
@@ -37,17 +39,24 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(<String>{});
+    registerFallbackValue(<CustomList>[]);
   });
 
   setUp(() {
     bookRepository = MockBookRepository();
     favoritesRepository = MockFavoritesRepository();
+    customListsRepository = MockCustomListsRepository();
   });
 
-  BookService buildService(Set<String> favorites) {
+  BookService buildService(Set<String> favorites,
+      {List<CustomList>? customLists}) {
     when(() => favoritesRepository.getFavorites())
         .thenAnswer((_) async => favorites);
     when(() => favoritesRepository.storeFavorites(any()))
+        .thenAnswer((_) async {});
+    when(() => customListsRepository.getLists())
+        .thenAnswer((_) async => customLists ?? <CustomList>[]);
+    when(() => customListsRepository.storeLists(any()))
         .thenAnswer((_) async {});
     when(() => bookRepository.getBookPackage(
             forceResync: any(named: 'forceResync')))
@@ -56,6 +65,7 @@ void main() {
     return BookService(
       bookRepository: bookRepository,
       favoritesRepository: favoritesRepository,
+      customListsRepository: customListsRepository,
     );
   }
 
@@ -135,6 +145,119 @@ void main() {
           .single as Set<String>;
       expect(captured, isNot(contains('CC1')));
       expect(captured, isNot(contains('1 Alpha')));
+    });
+  });
+
+  group('custom lists CRUD', () {
+    test('createList generates an id and persists', () async {
+      final service = buildService({});
+      final list = await service.createList('Seara');
+
+      expect(list.name, 'Seara');
+      expect(list.id, isNotEmpty);
+      expect(list.pinned, isFalse);
+
+      final stored = verify(() => customListsRepository.storeLists(captureAny()))
+          .captured
+          .single as List<CustomList>;
+      expect(stored.map((l) => l.name), ['Seara']);
+      expect(await service.getCustomLists(), hasLength(1));
+    });
+
+    test('renameList changes the name and persists', () async {
+      final service = buildService({},
+          customLists: [CustomList(id: '1', name: 'Veche')]);
+      await service.renameList('1', 'Nouă');
+
+      final lists = await service.getCustomLists();
+      expect(lists.single.name, 'Nouă');
+      verify(() => customListsRepository.storeLists(any())).called(1);
+    });
+
+    test('deleteList removes the list and persists', () async {
+      final service = buildService({}, customLists: [
+        CustomList(id: '1', name: 'A'),
+        CustomList(id: '2', name: 'B'),
+      ]);
+      await service.deleteList('1');
+
+      final lists = await service.getCustomLists();
+      expect(lists.map((l) => l.id), ['2']);
+    });
+
+    test('setListPinned toggles the flag and persists', () async {
+      final service = buildService({},
+          customLists: [CustomList(id: '1', name: 'A')]);
+      await service.setListPinned('1', true);
+
+      final lists = await service.getCustomLists();
+      expect(lists.single.pinned, isTrue);
+    });
+  });
+
+  group('custom list membership', () {
+    test('addSongToList appends the song id once', () async {
+      final service = buildService({},
+          customLists: [CustomList(id: '1', name: 'A')]);
+      final song = summary('CC', 1, 'Alpha');
+
+      await service.addSongToList('1', song);
+      await service.addSongToList('1', song);
+
+      final lists = await service.getCustomLists();
+      expect(lists.single.songIds, ['CC1']);
+    });
+
+    test('removeSongFromList removes the song id', () async {
+      final service = buildService({}, customLists: [
+        CustomList(id: '1', name: 'A', songIds: ['CC1', 'JJ1'])
+      ]);
+      await service.removeSongFromList('1', summary('CC', 1, 'Alpha'));
+
+      final lists = await service.getCustomLists();
+      expect(lists.single.songIds, ['JJ1']);
+    });
+
+    test('getListIdsContaining returns the lists holding the song', () async {
+      final service = buildService({}, customLists: [
+        CustomList(id: '1', name: 'A', songIds: ['CC1']),
+        CustomList(id: '2', name: 'B', songIds: ['JJ1']),
+        CustomList(id: '3', name: 'C', songIds: ['CC1', 'JJ1']),
+      ]);
+
+      final ids = await service.getListIdsContaining(summary('CC', 1, 'Alpha'));
+      expect(ids, {'1', '3'});
+    });
+  });
+
+  group('pinned lists in book package', () {
+    test('appends only pinned lists after favorites', () async {
+      final service = buildService({}, customLists: [
+        CustomList(id: '1', name: 'Pinned', songIds: ['CC1'], pinned: true),
+        CustomList(id: '2', name: 'Unpinned', songIds: ['JJ1']),
+      ]);
+      final package = await service.getBookPackage().first;
+
+      // all songs + 2 real books + favorites + 1 pinned list.
+      expect(package.books.length, 5);
+      expect(package.books[3].id, FAVORITES_ID);
+      expect(package.books.last.id, CUSTOM_LIST_ID_PREFIX + '1');
+      expect(package.books.last.title, 'Pinned');
+      expect(package.books.last.songSummaries.map((s) => s.id), ['CC1']);
+    });
+
+    test('preserves list insertion order and skips unknown ids', () async {
+      final service = buildService({}, customLists: [
+        CustomList(
+            id: '1',
+            name: 'Pinned',
+            songIds: ['JJ1', 'MISSING', 'CC1'],
+            pinned: true),
+      ]);
+      final package = await service.getBookPackage().first;
+
+      final listBook = package.books.last;
+      expect(listBook.songSummaries.map((s) => s.id), ['JJ1', 'CC1']);
     });
   });
 }

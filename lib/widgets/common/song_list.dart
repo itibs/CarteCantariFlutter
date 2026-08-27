@@ -7,7 +7,10 @@ class SongList extends StatelessWidget {
   final List<SongSummary> songs;
   final Future<void> Function(SongSummary) onTap;
 
-  SongList({required this.songs, required this.onTap});
+  /// When set, rows can be swiped away (end-to-start) to remove them.
+  final void Function(SongSummary)? onDismiss;
+
+  SongList({required this.songs, required this.onTap, this.onDismiss});
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +23,22 @@ class SongList extends StatelessWidget {
           itemCount: songs.length,
           itemBuilder: (context, i) {
             final index = i;
-            return _buildRow(songs[index], isDark);
+            final row = _buildRow(songs[index], isDark);
+            if (onDismiss == null) {
+              return row;
+            }
+            return Dismissible(
+              key: ValueKey(songs[index].id),
+              direction: DismissDirection.endToStart,
+              background: Container(
+                color: Colors.red,
+                alignment: Alignment.centerRight,
+                padding: EdgeInsets.only(right: 20),
+                child: Icon(Icons.delete, color: Colors.white),
+              ),
+              onDismissed: (_) => onDismiss!(songs[index]),
+              child: row,
+            );
           }),
     );
   }
