@@ -16,6 +16,7 @@ Map<String, dynamic> baseJson() => {
       'text': 'Strofa unu',
       'music_sheet': ['a.jpg', 'b.jpg'],
       'music_sheet_pdfs': ['a.pdf'],
+      'youtube_id': 'dQw4w9WgXcQ',
     };
 
 void main() {
@@ -26,6 +27,7 @@ void main() {
       expect(song.text, 'Strofa unu');
       expect(song.musicSheet, ['a.jpg', 'b.jpg']);
       expect(song.musicSheetPDFs, ['a.pdf']);
+      expect(song.youtubeId, 'dQw4w9WgXcQ');
       expect(song.number, 4);
       expect(song.bookId, 'CC');
     });
@@ -51,6 +53,23 @@ void main() {
       expect(song.musicSheet, isNull);
       expect(song.musicSheetPDFs, isNull);
     });
+
+    test('handles missing youtube_id', () {
+      final json = baseJson()..remove('youtube_id');
+      final song = Song.fromJson(json);
+      expect(song.youtubeId, isNull);
+      expect(song.youtubeLaunchUri, isNull);
+    });
+  });
+
+  group('youtubeLaunchUri', () {
+    test('turns a video id into a YouTube watch URL', () {
+      final song = Song.fromJson(baseJson());
+      expect(
+        song.youtubeLaunchUri,
+        Uri.parse('https://www.youtube.com/watch?v=dQw4w9WgXcQ'),
+      );
+    });
   });
 
   group('toJson / fromJson round-trip', () {
@@ -63,6 +82,7 @@ void main() {
       expect(restored.text, original.text);
       expect(restored.musicSheet, original.musicSheet);
       expect(restored.musicSheetPDFs, original.musicSheetPDFs);
+      expect(restored.youtubeId, original.youtubeId);
       expect(restored.searchableText, original.searchableText);
       expect(restored.title, original.title);
       expect(restored.number, original.number);

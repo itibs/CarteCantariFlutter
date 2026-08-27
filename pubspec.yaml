@@ -36,6 +36,7 @@ dependencies:
   image: ^4.1.3
   sprintf: "^7.0.0"
   syncfusion_flutter_pdfviewer: ^31.2.10
+  url_launcher: ^6.3.2
 
 dev_dependencies:
   flutter_test:
@@ -86,3 +87,4 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+
