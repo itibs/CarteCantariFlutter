@@ -10,6 +10,7 @@ import 'package:ccc_flutter/models/song_summary.dart';
 import 'package:ccc_flutter/services/book_service.dart';
 import 'package:ccc_flutter/services/songs_history_service.dart';
 import 'package:ccc_flutter/widgets/categories_screen/categories_screen.dart';
+import 'package:ccc_flutter/widgets/custom_lists_screen/custom_lists_screen.dart';
 import 'package:ccc_flutter/widgets/common/search_box.dart';
 import 'package:ccc_flutter/widgets/common/song_list.dart';
 import 'package:ccc_flutter/widgets/main_screen/horizontal_button.dart';
@@ -134,6 +135,29 @@ class _MainScreenState extends State<MainScreen> {
     _loadBooks();
   }
 
+  /// Rebuilds the pinned custom-list virtual books from the service state.
+  /// Called when returning from screens that may have changed the lists.
+  Future<void> _refreshCustomListBooks() async {
+    if (_books.isEmpty) {
+      return;
+    }
+    final allSongs =
+        _books.firstWhere((b) => b.id == ALL_SONGS_BOOK_ID).songSummaries;
+    final listBooks = await _bookService.buildPinnedListBooks(allSongs);
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _books = _books
+          .where((b) => !b.id.startsWith(CUSTOM_LIST_ID_PREFIX))
+          .toList()
+        ..addAll(listBooks);
+      if (!_books.any((b) => b.id == _crtBookId)) {
+        _crtBookId = ALL_SONGS_BOOK_ID;
+      }
+    });
+  }
+
   void _setFavorite(SongSummary favSong, bool value) {
     var favoritesBooks =
         _books.where((book) => book.id == FAVORITES_ID).toList();
@@ -169,7 +193,7 @@ class _MainScreenState extends State<MainScreen> {
                   bookService: _bookService,
                   setFavorite: _setFavorite,
                 ),
-              ));
+              )).then((_) => _refreshCustomListBooks());
           return;
         },
         goToCategories: () async {
@@ -182,7 +206,20 @@ class _MainScreenState extends State<MainScreen> {
                   bookService: _bookService,
                   setFavorite: _setFavorite,
                 ),
-              ));
+              )).then((_) => _refreshCustomListBooks());
+          return;
+        },
+        goToCustomLists: () async {
+          final fullSongs = await _songs;
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => CustomListsScreen(
+                  songs: fullSongs,
+                  bookService: _bookService,
+                  setFavorite: _setFavorite,
+                ),
+              )).then((_) => _refreshCustomListBooks());
           return;
         },
         goToMusicSheetSettings: () async {
@@ -215,7 +252,12 @@ class _MainScreenState extends State<MainScreen> {
                                 color: isDark
                                     ? COLOR_DARK_FAVORITE
                                     : COLOR_FAVORITE))
-                        : Container(),
+                        : book.id.startsWith(CUSTOM_LIST_ID_PREFIX)
+                            ? Padding(
+                                padding: EdgeInsets.fromLTRB(0, 0, 5, 0),
+                                child: Icon(Icons.playlist_play,
+                                    color: Colors.white))
+                            : Container(),
                     Text(
                       _getBookTitleById(book.id),
                       style: TextStyle(
@@ -335,7 +377,7 @@ class _MainScreenState extends State<MainScreen> {
                         bookService: _bookService,
                         setFavorite: _setFavorite,
                       ),
-                    ));
+                    )).then((_) => _refreshCustomListBooks());
                 return;
               },
             ),

@@ -7,9 +7,10 @@ class SideMenu extends StatelessWidget {
   final VoidCallback syncBooks;
   final VoidCallback goToSongsHistory;
   final VoidCallback goToCategories;
+  final VoidCallback goToCustomLists;
   final VoidCallback goToMusicSheetSettings;
 
-  SideMenu({Key? key, required this.syncBooks, required this.goToSongsHistory, required this.goToCategories, required this.goToMusicSheetSettings})
+  SideMenu({Key? key, required this.syncBooks, required this.goToSongsHistory, required this.goToCategories, required this.goToCustomLists, required this.goToMusicSheetSettings})
       : super(key: key);
 
   @override
@@ -55,6 +56,17 @@ class SideMenu extends StatelessWidget {
               ),
             ),
             onTap: goToCategories,
+          ),
+          ListTile(
+            leading: Icon(Icons.playlist_play),
+            title: Text(
+              'Listele mele',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            onTap: goToCustomLists,
           ),
           CheckboxListTile(
               title: Text(
