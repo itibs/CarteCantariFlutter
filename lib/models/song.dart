@@ -9,6 +9,7 @@ class Song extends SongSummary {
   String searchableText;
   List<String>? musicSheet;
   List<String>? musicSheetPDFs;
+  String? youtubeId;
 
   Song(
       {required String bookId,
@@ -22,6 +23,7 @@ class Song extends SongSummary {
       List<String>? tags,
       this.musicSheet,
       this.musicSheetPDFs,
+      this.youtubeId,
       required this.text,
       required String searchableTitle,
       required this.searchableText})
@@ -66,6 +68,7 @@ class Song extends SongSummary {
       tags: songSummary.tags,
       musicSheet: musicSheet?.cast<String>(),
       musicSheetPDFs: musicSheetPDFs?.cast<String>(),
+      youtubeId: json['youtube_id'],
       text: text,
       searchableTitle: songSummary.searchableTitle,
       searchableText: searchableText,
@@ -85,11 +88,20 @@ class Song extends SongSummary {
       'tags': tags,
       'music_sheet': musicSheet,
       'music_sheet_pdfs': musicSheetPDFs,
+      'youtube_id': youtubeId,
       'text': text,
       'searchable_title': searchableTitle,
       'searchable_text': searchableText,
     };
     return songJson;
+  }
+
+  Uri? get youtubeLaunchUri {
+    final value = youtubeId?.trim();
+    if (value == null || value.isEmpty) {
+      return null;
+    }
+    return Uri.https('www.youtube.com', '/watch', {'v': value});
   }
 
   static Set<Song> getSongsSetFromSongsJson(String strSongsJson) {

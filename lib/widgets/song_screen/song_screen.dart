@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 import 'music_sheet_body/music_sheet_body.dart';
@@ -137,6 +138,12 @@ class _SongScreenState extends State<SongScreen> {
                 },
                 iconSize: 30.0,
               ),
+              if (widget.song.youtubeLaunchUri != null)
+                IconButton(
+                  icon: Icon(Icons.smart_display_outlined),
+                  onPressed: () => _openYoutube(widget.song.youtubeLaunchUri!),
+                  iconSize: 30.0,
+                ),
               Padding(
                 child: IconButton(
                   icon: Icon(Icons.tonality),
@@ -248,6 +255,10 @@ class _SongScreenState extends State<SongScreen> {
         );
       },
     );
+  }
+
+  Future<void> _openYoutube(Uri uri) async {
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
   }
 
   bool isMusicSheetAvailable(bool allowJubilate, bool allowCor) {
