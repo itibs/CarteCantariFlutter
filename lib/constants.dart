@@ -22,6 +22,7 @@ const PREFS_TEXT_SIZE_KEY = "textSize";
 const PREFS_ALLOW_JUBILATE = "allowJubilate";
 const PREFS_ALLOW_COR = "allowCor";
 const PREFS_UPDATE_VERSION = "updateVersion";
+const PREFS_LAST_SYNC_TIMESTAMP = "lastSyncTimestamp";
 
 const LATEST_UPDATE_VERSION = 3;
 
