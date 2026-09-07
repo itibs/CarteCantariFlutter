@@ -23,6 +23,28 @@ const PREFS_ALLOW_JUBILATE = "allowJubilate";
 const PREFS_ALLOW_COR = "allowCor";
 const PREFS_UPDATE_VERSION = "updateVersion";
 
+// Auth: the app persists the signed-in account itself so a cold start with no
+// internet still shows the user as logged in.
+const PREFS_AUTH_SIGNED_IN = "authSignedIn";
+const PREFS_AUTH_EMAIL = "authEmail";
+const PREFS_AUTH_DISPLAY_NAME = "authDisplayName";
+const PREFS_AUTH_PHOTO_URL = "authPhotoUrl";
+
+// Cloud sync bookkeeping.
+const PREFS_SYNC_DIRTY = "syncDirty";
+const PREFS_SYNC_UPDATED_AT = "syncUpdatedAt";
+
+// Snapshot of the anonymous (logged-out) profile, taken when logging in and
+// restored when logging out.
+const PREFS_ANON_SNAPSHOT_EXISTS = "anonSnapshotExists";
+const PREFS_ANON_APP_THEME = "anonAppTheme";
+const PREFS_ANON_TEXT_SIZE = "anonTextSize";
+const PREFS_ANON_SHOW_KEY_SIGNATURES = "anonShowKeySignatures";
+const PREFS_ANON_ALLOW_JUBILATE = "anonAllowJubilate";
+const PREFS_ANON_ALLOW_COR = "anonAllowCor";
+const PREFS_ANON_FAVORITES = "anonFavorites";
+const PREFS_ANON_CUSTOM_LISTS = "anonCustomLists";
+
 const LATEST_UPDATE_VERSION = 3;
 
 const HOSTNAME = "185.177.59.158";

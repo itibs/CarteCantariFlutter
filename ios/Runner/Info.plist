@@ -41,5 +41,20 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<!-- Google Sign-In iOS client ID. See docs/auth.md to rotate. -->
+	<key>GIDClientID</key>
+	<string>181044477832-t38f9004i3n6rhi3r0bnp64ol23394oh.apps.googleusercontent.com</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<!-- The iOS client ID with the components reversed. -->
+				<string>com.googleusercontent.apps.181044477832-t38f9004i3n6rhi3r0bnp64ol23394oh</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

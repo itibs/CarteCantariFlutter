@@ -1,8 +1,10 @@
+import 'package:ccc_flutter/blocs/auth/auth_cubit.dart';
 import 'package:ccc_flutter/blocs/settings/allow_cor_music_sheets/allow_cor_music_sheets.dart';
 import 'package:ccc_flutter/blocs/settings/allow_jubilate_music_sheets/allow_jubilate_music_sheets.dart';
 
 import 'blocs/settings/show_key_signatures/show_key_signatures.dart';
 import 'services/pitch_sound_service.dart';
+import 'services/sync_service.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -16,25 +18,59 @@ import 'widgets/main_screen/main_screen.dart';
 /// zooming in shrinks the logical viewport, letting the column grow to fill it.
 const double _kMaxWebContentWidth = 720;
 
-void main() => runApp(MyApp());
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // The blocs are created up front (instead of inside the provider tree) so
+  // the SyncService can refresh them when remote account data is applied.
+  final themeBloc = ThemeBloc();
+  final showKeySignaturesCubit = ShowKeySignaturesCubit();
+  final allowJubilateCubit = AllowJubilateMusicSheetsCubit();
+  final allowCorCubit = AllowCorMusicSheetsCubit();
+  final authCubit = AuthCubit();
+
+  SyncService.instance = SyncService(
+    authCubit: authCubit,
+    themeBloc: themeBloc,
+    showKeySignaturesCubit: showKeySignaturesCubit,
+    allowJubilateCubit: allowJubilateCubit,
+    allowCorCubit: allowCorCubit,
+  );
+
+  runApp(MyApp(
+    themeBloc: themeBloc,
+    showKeySignaturesCubit: showKeySignaturesCubit,
+    allowJubilateCubit: allowJubilateCubit,
+    allowCorCubit: allowCorCubit,
+    authCubit: authCubit,
+  ));
+}
 
 class MyApp extends StatelessWidget {
+  final ThemeBloc themeBloc;
+  final ShowKeySignaturesCubit showKeySignaturesCubit;
+  final AllowJubilateMusicSheetsCubit allowJubilateCubit;
+  final AllowCorMusicSheetsCubit allowCorCubit;
+  final AuthCubit authCubit;
+
+  MyApp({
+    Key? key,
+    required this.themeBloc,
+    required this.showKeySignaturesCubit,
+    required this.allowJubilateCubit,
+    required this.allowCorCubit,
+    required this.authCubit,
+  }) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
         providers: [
-          BlocProvider(
-            create: (context) => ThemeBloc(),
-          ),
-          BlocProvider(
-            create: (context) => ShowKeySignaturesCubit(),
-          ),
-          BlocProvider(
-            create: (context) => AllowJubilateMusicSheetsCubit(),
-          ),
-          BlocProvider(
-            create: (context) => AllowCorMusicSheetsCubit(),
-          )
+          BlocProvider.value(value: themeBloc),
+          BlocProvider.value(value: showKeySignaturesCubit),
+          BlocProvider.value(value: allowJubilateCubit),
+          BlocProvider.value(value: allowCorCubit),
+          BlocProvider.value(value: authCubit),
         ],
         child: Provider(
           create: (context) => PitchSoundService(),

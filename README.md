@@ -2,6 +2,8 @@
 
 Carte Cantari Carol
 
+Google Sign-In and cloud sync IDs: see [docs/auth.md](docs/auth.md).
+
 ## Getting Started
 
 This project is a starting point for a Flutter application.

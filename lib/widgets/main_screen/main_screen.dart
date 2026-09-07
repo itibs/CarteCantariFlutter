@@ -1,3 +1,4 @@
+import 'package:ccc_flutter/blocs/auth/auth_cubit.dart';
 import 'package:ccc_flutter/blocs/settings/allow_cor_music_sheets/allow_cor_music_sheets.dart';
 import 'package:ccc_flutter/blocs/settings/allow_jubilate_music_sheets/allow_jubilate_music_sheets.dart';
 import 'package:ccc_flutter/blocs/settings/show_key_signatures/show_key_signatures_cubit.dart';
@@ -9,6 +10,8 @@ import 'package:ccc_flutter/models/song.dart';
 import 'package:ccc_flutter/models/song_summary.dart';
 import 'package:ccc_flutter/services/book_service.dart';
 import 'package:ccc_flutter/services/songs_history_service.dart';
+import 'package:ccc_flutter/services/sync_service.dart';
+import 'package:ccc_flutter/widgets/auth/web_sign_in_dialog.dart';
 import 'package:ccc_flutter/widgets/categories_screen/categories_screen.dart';
 import 'package:ccc_flutter/widgets/custom_lists_screen/custom_lists_screen.dart';
 import 'package:ccc_flutter/widgets/common/search_box.dart';
@@ -17,8 +20,10 @@ import 'package:ccc_flutter/widgets/main_screen/horizontal_button.dart';
 import 'package:ccc_flutter/widgets/music_sheet_settings_screen/music_sheet_settings_screen.dart';
 import 'package:ccc_flutter/widgets/side_menu.dart';
 import 'package:ccc_flutter/widgets/songs_history_screen/songs_history_screen.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/book.dart';
@@ -133,6 +138,115 @@ class _MainScreenState extends State<MainScreen> {
     });
     developer.log("${DateTime.now()} Init state");
     _loadBooks();
+
+    // Cloud sync: reflect remotely-applied favorites and custom lists in the
+    // loaded books, then restore the persisted signed-in state (offline-safe)
+    // and run an opportunistic background sync.
+    SyncService.instance?.onSyncedDataApplied = () {
+      _bookService.reloadFavorites();
+      _bookService.reloadCustomLists();
+      _loadBooks();
+    };
+    context
+        .read<AuthCubit>()
+        .load()
+        .then((_) => SyncService.instance?.onAppStart());
+  }
+
+  Future<void> _handleLogin() async {
+    final authCubit = context.read<AuthCubit>();
+    GoogleSignInAccount? account;
+    try {
+      if (kIsWeb) {
+        // The rendered Google button needs the SDK to be initialized.
+        await authCubit.ensureInitialized();
+        account = await showDialog<GoogleSignInAccount>(
+          context: context,
+          builder: (_) => WebSignInDialog(authCubit: authCubit),
+        );
+      } else {
+        account = await authCubit.signInInteractive();
+      }
+    } catch (e) {
+      showToast("Conectarea cu Google a eșuat. Încearcă mai târziu.", _fToast);
+      return;
+    }
+    if (account == null) {
+      // User canceled.
+      return;
+    }
+
+    final ok =
+        await SyncService.instance!.handleSignedIn(askImport: _askImport);
+    if (!ok) {
+      await authCubit.signOut();
+      showToast(
+          "A apărut o eroare la sincronizare.\nVerifică dacă ai conexiune la internet și încearcă din nou.",
+          _fToast);
+      return;
+    }
+    await authCubit.completeSignIn(account);
+    showToast("Conectat ca ${account.email}", _fToast);
+  }
+
+  Future<bool> _askImport() async {
+    final result = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: Text("Prima conectare"),
+        content: Text(
+            "Vrei să muți în acest cont lista de favorite, listele personalizate, setările și accesul la partituri de pe acest dispozitiv?\n\n"
+            "Dacă le muți, ele vor fi disponibile doar cât timp ești conectat: după deconectare, aplicația revine la setările inițiale.\n\n"
+            "Dacă nu, contul pornește gol, iar datele rămân pe dispozitiv pentru folosirea fără cont."),
+        actions: [
+          TextButton(
+            child: Text("Nu, cont gol"),
+            onPressed: () => Navigator.pop(context, false),
+          ),
+          TextButton(
+            child: Text("Mută în cont"),
+            onPressed: () => Navigator.pop(context, true),
+          ),
+        ],
+      ),
+    );
+    return result ?? false;
+  }
+
+  Future<void> _handleLogout() async {
+    final confirmed = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text("Deconectare"),
+            content: Text(
+                "Te deconectezi de la contul Google?\nDatele contului vor rămâne salvate în cloud."),
+            actions: [
+              TextButton(
+                child: Text("Anulează"),
+                onPressed: () => Navigator.pop(context, false),
+              ),
+              TextButton(
+                child: Text("Deconectare"),
+                onPressed: () => Navigator.pop(context, true),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+    if (!confirmed) {
+      return;
+    }
+
+    final ok = await SyncService.instance!.handleSignOut();
+    if (!ok) {
+      showToast(
+          "Deconectarea necesită internet pentru a salva modificările nesincronizate.",
+          _fToast);
+      return;
+    }
+    await context.read<AuthCubit>().signOut();
+    showToast("Te-ai deconectat", _fToast);
   }
 
   /// Rebuilds the pinned custom-list virtual books from the service state.
@@ -231,6 +345,14 @@ class _MainScreenState extends State<MainScreen> {
                 ),
               ));
           return;
+        },
+        onLogin: () {
+          Navigator.pop(context); // close the drawer
+          _handleLogin();
+        },
+        onLogout: () {
+          Navigator.pop(context); // close the drawer
+          _handleLogout();
         },
       ),
       appBar: AppBar(

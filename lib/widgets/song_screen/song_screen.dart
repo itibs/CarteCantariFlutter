@@ -3,6 +3,7 @@ import 'package:ccc_flutter/constants.dart';
 import 'package:ccc_flutter/models/song.dart';
 import 'package:ccc_flutter/models/song_summary.dart';
 import 'package:ccc_flutter/services/book_service.dart';
+import 'package:ccc_flutter/services/sync_service.dart';
 import 'package:ccc_flutter/widgets/common/app_scrollbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -100,6 +101,7 @@ class _SongScreenState extends State<SongScreen> {
                     SharedPreferences.getInstance().then((prefs) {
                       prefs.setDouble(PREFS_TEXT_SIZE_KEY, _textSize);
                     });
+                    SyncService.instance?.notifyLocalChange();
                   });
                 },
                 iconSize: 30.0,
@@ -112,6 +114,7 @@ class _SongScreenState extends State<SongScreen> {
                     SharedPreferences.getInstance().then((prefs) {
                       prefs.setDouble(PREFS_TEXT_SIZE_KEY, _textSize);
                     });
+                    SyncService.instance?.notifyLocalChange();
                   });
                 },
                 iconSize: 30.0,

@@ -1,6 +1,7 @@
 import 'package:ccc_flutter/blocs/settings/allow_cor_music_sheets/allow_cor_music_sheets.dart';
 import 'package:ccc_flutter/blocs/settings/allow_jubilate_music_sheets/allow_jubilate_music_sheets.dart';
 import 'package:ccc_flutter/services/music_sheet_service.dart';
+import 'package:ccc_flutter/services/sync_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -135,6 +136,7 @@ class _MusicSheetSettingsScreenState extends State<MusicSheetSettingsScreen> {
                         "Trimite un e-mail la adresa tiberiu.irg@gmail.com în care să demonstrezi că deții culegerile Jubilate.",
                         () {
                       allowJubilateMusicSheets.setValue(true);
+                      SyncService.instance?.notifyLocalChange();
                       showToast(
                           "Partiturile Jubilate au fost activate", _fToast);
                     });
@@ -160,6 +162,7 @@ class _MusicSheetSettingsScreenState extends State<MusicSheetSettingsScreen> {
                         "Trimite un e-mail la adresa tiberiu.irg@gmail.com în care să ceri cod pentru deblocare dacă faci parte din Corul Evanghelic.",
                         () {
                       allowCorMusicSheets.setValue(true);
+                      SyncService.instance?.notifyLocalChange();
                       showToast("Partiturile de Cor au fost activate", _fToast);
                     });
                   },

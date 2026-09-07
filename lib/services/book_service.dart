@@ -11,6 +11,7 @@ import 'package:ccc_flutter/repositories/custom_lists_repository/custom_lists_we
 import 'package:ccc_flutter/repositories/favorites_repository/favorites_mobile_repository.dart';
 import 'package:ccc_flutter/repositories/favorites_repository/favorites_repository.dart';
 import 'package:ccc_flutter/repositories/favorites_repository/favorites_web_repository.dart';
+import 'package:ccc_flutter/services/sync_service.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
 class BookService {
@@ -48,6 +49,20 @@ class BookService {
 
   Future<void> _ensureCustomListsLoaded() async {
     _customLists ??= await _customListsFuture;
+  }
+
+  /// Drops the in-memory favorites cache so the next book load re-reads them
+  /// from storage. Used after cloud sync rewrites the stored favorites.
+  void reloadFavorites() {
+    _favorites = null;
+    _favoritesFuture = _favoritesRepository.getFavorites();
+  }
+
+  /// Drops the in-memory custom lists cache so the next book load re-reads
+  /// them from storage. Used after cloud sync rewrites the stored lists.
+  void reloadCustomLists() {
+    _customLists = null;
+    _customListsFuture = _customListsRepository.getLists();
   }
 
   Stream<BookPackage> getBookPackage({bool forceResync = false}) async* {
@@ -100,6 +115,7 @@ class BookService {
     }
 
     await _favoritesRepository.storeFavorites(favorites);
+    SyncService.instance?.notifyLocalChange();
   }
 
   Future<List<CustomList>> getCustomLists() async {
@@ -114,7 +130,7 @@ class BookService {
       name: name,
     );
     _customLists!.add(list);
-    await _customListsRepository.storeLists(_customLists!);
+    await _persistCustomLists();
     return list;
   }
 
@@ -125,13 +141,13 @@ class BookService {
       return;
     }
     list.first.name = name;
-    await _customListsRepository.storeLists(_customLists!);
+    await _persistCustomLists();
   }
 
   Future<void> deleteList(String listId) async {
     await _ensureCustomListsLoaded();
     _customLists!.removeWhere((l) => l.id == listId);
-    await _customListsRepository.storeLists(_customLists!);
+    await _persistCustomLists();
   }
 
   Future<void> setListPinned(String listId, bool pinned) async {
@@ -141,7 +157,7 @@ class BookService {
       return;
     }
     list.first.pinned = pinned;
-    await _customListsRepository.storeLists(_customLists!);
+    await _persistCustomLists();
   }
 
   Future<void> addSongToList(String listId, SongSummary song) async {
@@ -151,7 +167,7 @@ class BookService {
       return;
     }
     list.first.songIds.add(song.id);
-    await _customListsRepository.storeLists(_customLists!);
+    await _persistCustomLists();
   }
 
   Future<void> removeSongFromList(String listId, SongSummary song) async {
@@ -161,7 +177,12 @@ class BookService {
       return;
     }
     list.first.songIds.remove(song.id);
+    await _persistCustomLists();
+  }
+
+  Future<void> _persistCustomLists() async {
     await _customListsRepository.storeLists(_customLists!);
+    SyncService.instance?.notifyLocalChange();
   }
 
   Future<Set<String>> getListIdsContaining(SongSummary song) async {
