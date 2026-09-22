@@ -112,13 +112,20 @@ class SyncService {
 
   /// Post-authentication flow, run before the account is marked signed in at
   /// the app level. [askImport] shows the first-login import dialog.
+  ///
+  /// Live (logged-out) data is snapshotted first and is only replaced after
+  /// the cloud write or remote apply succeeds. Any failure after the snapshot
+  /// restores it so a failed login cannot wipe the device.
   /// Returns false on failure, in which case the caller signs back out.
   Future<bool> handleSignedIn(
       {required Future<bool> Function() askImport}) async {
     final prefs = await SharedPreferences.getInstance();
+    var snapshotted = false;
     try {
+      // Fetch before touching local storage so a network failure is a no-op.
       final remote = await _fetchRemote();
       await _snapshotAnonymous(prefs);
+      snapshotted = true;
       if (remote != null) {
         await _applyRemote(remote);
       } else {
@@ -126,18 +133,26 @@ class SyncService {
         final now = DateTime.now().millisecondsSinceEpoch;
         final import = await askImport();
         if (import) {
-          // The live local data becomes the account data; the logged-out app
-          // is reset to defaults from now on.
+          // Keep live data as-is until the account document is stored.
+          await prefs.setInt(PREFS_SYNC_UPDATED_AT, now);
+          await pushLocal();
+          // Logged-out profile becomes empty only after the upload succeeded.
           await _resetAnonymousSnapshotToDefaults(prefs);
         } else {
-          // Fresh account; the anonymous data stays for logged-out use.
-          await _applyRemote(UserData.defaults(updatedAt: now));
+          // Upload the empty account first; only then replace live data.
+          // The snapshot still holds the logged-out profile for logout.
+          final empty = UserData.defaults(updatedAt: now);
+          await _push(empty);
+          await _applyRemote(empty);
         }
-        await prefs.setInt(PREFS_SYNC_UPDATED_AT, now);
-        await pushLocal();
       }
       return true;
     } catch (_) {
+      if (snapshotted) {
+        try {
+          await _restoreAnonymous(prefs);
+        } catch (_) {}
+      }
       return false;
     }
   }
@@ -161,14 +176,17 @@ class SyncService {
 
   /// Uploads the current live local data to the account.
   Future<void> pushLocal() async {
+    final prefs = await SharedPreferences.getInstance();
+    await _push(await _collectLocal(prefs));
+    await prefs.setBool(PREFS_SYNC_DIRTY, false);
+  }
+
+  Future<void> _push(UserData data) async {
     final token = await authCubit.getIdToken();
     if (token == null) {
       throw Exception('No ID token available');
     }
-    final prefs = await SharedPreferences.getInstance();
-    final data = await _collectLocal(prefs);
     await _userDataRepository.storeUserData(token, data);
-    await prefs.setBool(PREFS_SYNC_DIRTY, false);
   }
 
   Future<UserData?> _fetchRemote() async {
