@@ -26,7 +26,9 @@ class Song extends SongSummary {
       this.youtubeId,
       required this.text,
       required String searchableTitle,
-      required this.searchableText})
+      required this.searchableText,
+      List<String>? playDates,
+      String? lastSung})
       : super(
             bookId: bookId,
             title: title,
@@ -37,7 +39,9 @@ class Song extends SongSummary {
             searchableTitle: searchableTitle,
             references: references,
             pitch: pitch,
-            tags: tags);
+            tags: tags,
+            playDates: playDates,
+            lastSung: lastSung);
 
   factory Song.fromJson(Map<String, dynamic> json, {String? bookId}) {
     var text = json['text'];
@@ -72,6 +76,8 @@ class Song extends SongSummary {
       text: text,
       searchableTitle: songSummary.searchableTitle,
       searchableText: searchableText,
+      playDates: songSummary.playDates,
+      lastSung: songSummary.lastSung,
     );
   }
 
@@ -92,6 +98,8 @@ class Song extends SongSummary {
       'text': text,
       'searchable_title': searchableTitle,
       'searchable_text': searchableText,
+      'play_dates': playDates,
+      'last_sung': lastSung,
     };
     return songJson;
   }

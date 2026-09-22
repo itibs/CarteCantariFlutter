@@ -1,4 +1,5 @@
 import 'package:ccc_flutter/helpers.dart';
+import 'package:ccc_flutter/play_history.dart';
 
 class SongSummary implements Comparable<SongSummary> {
   String bookId;
@@ -11,6 +12,8 @@ class SongSummary implements Comparable<SongSummary> {
   List<String>? tags;
   String searchableTitle;
   String? pitch;
+  List<String>? playDates;
+  String? lastSung;
 
   SongSummary({
     required this.bookId,
@@ -23,6 +26,8 @@ class SongSummary implements Comparable<SongSummary> {
     this.pitch,
     this.tags,
     required this.searchableTitle,
+    this.playDates,
+    this.lastSung,
   });
 
   factory SongSummary.fromJson(Map<String, dynamic> json, {String? bookId}) {
@@ -35,6 +40,8 @@ class SongSummary implements Comparable<SongSummary> {
     var references = json['references'];
     var pitch = json['pitch'];
     var tags = json['tags'];
+    final playDates = parsePlayDateList(json['play_dates']);
+    final lastSung = json['last_sung']?.toString().trim();
 
     var strNumber = number != null ? number.toString() : "";
     var strBookAndNum = bookId! + " " + strNumber;
@@ -53,6 +60,8 @@ class SongSummary implements Comparable<SongSummary> {
       pitch: pitch,
       tags: tags?.cast<String>(),
       searchableTitle: searchableTitle,
+      playDates: playDates.isEmpty ? null : playDates,
+      lastSung: (lastSung == null || lastSung.isEmpty) ? null : lastSung,
     );
   }
 
@@ -67,9 +76,14 @@ class SongSummary implements Comparable<SongSummary> {
       'references': references,
       'tags': tags,
       'searchable_title': searchableTitle,
+      'play_dates': playDates,
+      'last_sung': lastSung,
     };
     return songJson;
   }
+
+  DateTime? get lastSungDate =>
+      lastSungFrom(lastSung: lastSung, playDates: playDates);
 
   String get idV1 {
     return number.toString() + " " + title;

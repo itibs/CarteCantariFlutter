@@ -1,7 +1,10 @@
+import 'package:ccc_flutter/blocs/settings/show_play_history/show_play_history.dart';
 import 'package:ccc_flutter/constants.dart';
 import 'package:ccc_flutter/models/song_summary.dart';
 import 'package:ccc_flutter/widgets/common/app_scrollbar.dart';
+import 'package:ccc_flutter/widgets/common/play_history_list_subtitle.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SongList extends StatelessWidget {
   final List<SongSummary> songs;
@@ -15,6 +18,7 @@ class SongList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final showPlayHistory = context.watch<ShowPlayHistoryCubit>().state;
 
     return AppScrollbar(
       builder: (context, controller) => ListView.builder(
@@ -23,7 +27,7 @@ class SongList extends StatelessWidget {
           itemCount: songs.length,
           itemBuilder: (context, i) {
             final index = i;
-            final row = _buildRow(songs[index], isDark);
+            final row = _buildRow(songs[index], isDark, showPlayHistory);
             if (onDismiss == null) {
               return row;
             }
@@ -43,7 +47,7 @@ class SongList extends StatelessWidget {
     );
   }
 
-  Widget _buildRow(SongSummary song, bool isDark) {
+  Widget _buildRow(SongSummary song, bool isDark, bool showPlayHistory) {
     final numFont = TextStyle(
       fontSize: 20.0,
       fontWeight: FontWeight.w900,
@@ -72,6 +76,9 @@ class SongList extends StatelessWidget {
       title: Row(
         children: [txtNum, txtTitle],
       ),
+      trailing: showPlayHistory && song.lastSungDate != null
+          ? PlayHistoryListSubtitle(song: song)
+          : null,
       onTap: () async {
         await onTap(song);
       },

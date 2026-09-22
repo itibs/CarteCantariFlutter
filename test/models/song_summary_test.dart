@@ -69,6 +69,32 @@ void main() {
       });
       expect(summary.searchableTitle, 'precomputed');
     });
+
+    test('parses play history when present', () {
+      final summary = SongSummary.fromJson({
+        'book_id': 'CC',
+        'title': 'Title',
+        'number': '1',
+        'play_dates': ['2024-03-24', '2026-07-30'],
+        'last_sung': '2026-07-30',
+      });
+
+      expect(summary.playDates, ['2024-03-24', '2026-07-30']);
+      expect(summary.lastSung, '2026-07-30');
+      expect(summary.lastSungDate, DateTime(2026, 7, 30));
+    });
+
+    test('treats missing play history as absent', () {
+      final summary = SongSummary.fromJson({
+        'book_id': 'CC',
+        'title': 'Title',
+        'number': '1',
+      });
+
+      expect(summary.playDates, isNull);
+      expect(summary.lastSung, isNull);
+      expect(summary.lastSungDate, isNull);
+    });
   });
 
   group('computed getters', () {

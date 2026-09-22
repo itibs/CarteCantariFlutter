@@ -1,5 +1,7 @@
 import 'package:ccc_flutter/blocs/settings/show_key_signatures/show_key_signatures_cubit.dart';
+import 'package:ccc_flutter/blocs/settings/show_play_history/show_play_history.dart';
 import 'package:ccc_flutter/models/song.dart';
+import 'package:ccc_flutter/widgets/song_screen/text_body/play_history_details.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -34,8 +36,10 @@ class SongBody extends StatelessWidget {
     );
 
     final showKeySignatures = context.watch<ShowKeySignaturesCubit>().state;
+    final showPlayHistory = context.watch<ShowPlayHistoryCubit>().state;
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
             padding: EdgeInsets.fromLTRB(10.0, 20.0, 10.0, 10.0),
@@ -45,7 +49,12 @@ class SongBody extends StatelessWidget {
               getFormattedTextSpan(song.text, textFont, _lyricsFormatting),
               TextSpan(text: "\n\n\n"),
               getMetaFieldsTextSpan(metaTextFont),
-            ])))
+            ]))),
+        if (showPlayHistory)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(10.0, 0, 10.0, 24.0),
+            child: PlayHistoryDetails(song: song, textSize: textSize),
+          ),
       ],
     );
   }

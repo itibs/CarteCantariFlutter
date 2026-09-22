@@ -1,4 +1,5 @@
 import 'package:ccc_flutter/blocs/settings/show_key_signatures/show_key_signatures.dart';
+import 'package:ccc_flutter/blocs/settings/show_play_history/show_play_history.dart';
 import 'package:ccc_flutter/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -16,6 +17,7 @@ class SideMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final showKeySignatures = context.watch<ShowKeySignaturesCubit>();
+    final showPlayHistory = context.watch<ShowPlayHistoryCubit>();
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
@@ -78,6 +80,20 @@ class SideMenu extends StatelessWidget {
               ),
               value: showKeySignatures.state,
               onChanged: showKeySignatures.setValue),
+          CheckboxListTile(
+              title: Text(
+                'Afișează istoricul cântărilor',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              subtitle: Text(
+                'Când a fost cântată ultima dată și cât de des',
+                style: TextStyle(fontSize: 12),
+              ),
+              value: showPlayHistory.state,
+              onChanged: showPlayHistory.setValue),
           ListTile(
             //leading: Icon(Icons.sync),
             title: Text(
