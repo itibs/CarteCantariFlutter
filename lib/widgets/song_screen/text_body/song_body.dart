@@ -39,7 +39,6 @@ class SongBody extends StatelessWidget {
     final showPlayHistory = context.watch<ShowPlayHistoryCubit>().state;
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
             padding: EdgeInsets.fromLTRB(10.0, 20.0, 10.0, 10.0),
