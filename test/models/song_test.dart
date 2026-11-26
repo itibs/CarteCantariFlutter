@@ -18,6 +18,8 @@ Map<String, dynamic> baseJson() => {
       'music_sheet_pdfs': ['a.pdf'],
       'youtube_id': 'dQw4w9WgXcQ',
       'audio_url': 'https://example.com/song.mp3',
+      'play_dates': ['2025-05-11', '2026-07-30'],
+      'last_sung': '2026-07-30',
     };
 
 void main() {
@@ -30,6 +32,8 @@ void main() {
       expect(song.musicSheetPDFs, ['a.pdf']);
       expect(song.youtubeId, 'dQw4w9WgXcQ');
       expect(song.audioUrl, 'https://example.com/song.mp3');
+      expect(song.playDates, ['2025-05-11', '2026-07-30']);
+      expect(song.lastSung, '2026-07-30');
       expect(song.number, 4);
       expect(song.bookId, 'CC');
     });
@@ -101,6 +105,8 @@ void main() {
       expect(restored.searchableText, original.searchableText);
       expect(restored.title, original.title);
       expect(restored.number, original.number);
+      expect(restored.playDates, original.playDates);
+      expect(restored.lastSung, original.lastSung);
     });
   });
 

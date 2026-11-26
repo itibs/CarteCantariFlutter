@@ -17,6 +17,8 @@ final COLOR_DARK_FAVORITE = Colors.yellow[700];
 
 const PREFS_APP_THEME_KEY = "appTheme";
 const PREFS_SETTINGS_SHOW_KEY_SIGNATURES = "settingsShowKeySignatures";
+const PREFS_SETTINGS_SHOW_PLAY_HISTORY = "settingsShowPlayHistory";
+const PREFS_PLAY_HISTORY_MENU_UNLOCKED = "playHistoryTitleUnlock";
 const PREFS_PRIORITIZE_MUSIC_SHEETS = "prioritizeMusicSheets";
 const PREFS_TEXT_SIZE_KEY = "textSize";
 const PREFS_ALLOW_JUBILATE = "allowJubilate";
@@ -24,7 +26,7 @@ const PREFS_ALLOW_COR = "allowCor";
 const PREFS_UPDATE_VERSION = "updateVersion";
 const PREFS_LAST_SYNC_TIMESTAMP = "lastSyncTimestamp";
 
-const LATEST_UPDATE_VERSION = 3;
+const LATEST_UPDATE_VERSION = 4;
 
 const HOSTNAME = "185.177.59.158";
 //const HOSTNAME = "localhost:5001";

@@ -2,6 +2,7 @@ import 'package:ccc_flutter/blocs/settings/allow_cor_music_sheets/allow_cor_musi
 import 'package:ccc_flutter/blocs/settings/allow_jubilate_music_sheets/allow_jubilate_music_sheets.dart';
 
 import 'blocs/settings/show_key_signatures/show_key_signatures.dart';
+import 'blocs/settings/show_play_history/show_play_history.dart';
 import 'services/pitch_sound_service.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
@@ -28,6 +29,9 @@ class MyApp extends StatelessWidget {
           ),
           BlocProvider(
             create: (context) => ShowKeySignaturesCubit(),
+          ),
+          BlocProvider(
+            create: (context) => ShowPlayHistoryCubit(),
           ),
           BlocProvider(
             create: (context) => AllowJubilateMusicSheetsCubit(),

@@ -3,6 +3,7 @@ import 'package:ccc_flutter/blocs/settings/allow_cor_music_sheets/allow_cor_musi
 import 'package:ccc_flutter/blocs/settings/allow_jubilate_music_sheets/allow_jubilate_music_sheets_cubit.dart';
 import 'package:ccc_flutter/blocs/settings/prioritze_music_sheets/prioritize_music_sheets_cubit.dart';
 import 'package:ccc_flutter/blocs/settings/show_key_signatures/show_key_signatures_cubit.dart';
+import 'package:ccc_flutter/blocs/settings/show_play_history/show_play_history_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -28,6 +29,26 @@ void main() {
     blocTest<ShowKeySignaturesCubit, bool>(
       'does nothing when set to null',
       build: () => ShowKeySignaturesCubit(),
+      act: (cubit) => cubit.setValue(null),
+      expect: () => const <bool>[],
+    );
+  });
+
+  group('ShowPlayHistoryCubit', () {
+    test('initial state is false', () {
+      expect(ShowPlayHistoryCubit().state, isFalse);
+    });
+
+    blocTest<ShowPlayHistoryCubit, bool>(
+      'emits true when set to true',
+      build: () => ShowPlayHistoryCubit(),
+      act: (cubit) => cubit.setValue(true),
+      expect: () => [true],
+    );
+
+    blocTest<ShowPlayHistoryCubit, bool>(
+      'does nothing when set to null',
+      build: () => ShowPlayHistoryCubit(),
       act: (cubit) => cubit.setValue(null),
       expect: () => const <bool>[],
     );
