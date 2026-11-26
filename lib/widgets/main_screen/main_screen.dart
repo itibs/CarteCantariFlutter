@@ -129,9 +129,10 @@ class _MainScreenState extends State<MainScreen> {
       context
           .read<ShowKeySignaturesCubit>()
           .setValue(prefs.getBool(PREFS_SETTINGS_SHOW_KEY_SIGNATURES) ?? false);
-      context
-          .read<ShowPlayHistoryCubit>()
-          .setValue(prefs.getBool(PREFS_SETTINGS_SHOW_PLAY_HISTORY) ?? false);
+      final playHistoryUnlocked = prefs.getBool(PREFS_PLAY_HISTORY_MENU_UNLOCKED) ?? false;
+      context.read<ShowPlayHistoryCubit>().setValue(
+            playHistoryUnlocked && (prefs.getBool(PREFS_SETTINGS_SHOW_PLAY_HISTORY) ?? false),
+          );
       context.read<AllowJubilateMusicSheetsCubit>().setValue(prefs.getBool(PREFS_ALLOW_JUBILATE) ?? false);
       context.read<AllowCorMusicSheetsCubit>().setValue(prefs.getBool(PREFS_ALLOW_COR) ?? false);
     });

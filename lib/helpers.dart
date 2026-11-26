@@ -38,7 +38,7 @@ String getSearchable(String s) {
   return s;
 }
 
-void showToast(String toastMessage, FToast fToast) {
+void showToast(String toastMessage, FToast fToast, {bool ignorePointer = false}) {
   Widget toast = Container(
     padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
     decoration: BoxDecoration(
@@ -56,6 +56,7 @@ void showToast(String toastMessage, FToast fToast) {
     child: toast,
     gravity: ToastGravity.BOTTOM,
     toastDuration: Duration(seconds: 2),
+    ignorePointer: ignorePointer,
   );
 }
 
