@@ -17,7 +17,7 @@ import 'save_to_list_sheet.dart';
 import 'song_audio_mini_player.dart';
 import 'text_body/song_body.dart';
 
-enum _SongOverflowAction { share, youtube }
+enum _SongOverflowAction { share, youtube, theme }
 
 class SongScreen extends StatefulWidget {
   final Song song;
@@ -176,13 +176,6 @@ class _SongScreenState extends State<SongScreen> {
                     onPressed: _toggleAudioBar,
                     iconSize: 30.0,
                   ),
-                IconButton(
-                  icon: Icon(Icons.tonality),
-                  onPressed: () {
-                    BlocProvider.of<ThemeBloc>(context).add(ThemeChanged());
-                  },
-                  iconSize: 30.0,
-                ),
                 Padding(
                   padding: EdgeInsets.fromLTRB(0, 0, 5, 0),
                   child: PopupMenuButton<_SongOverflowAction>(
@@ -190,17 +183,52 @@ class _SongScreenState extends State<SongScreen> {
                     icon: Icon(Icons.more_vert),
                     iconSize: 30.0,
                     onSelected: _onOverflowSelected,
-                    itemBuilder: (context) => [
-                      PopupMenuItem(
-                        value: _SongOverflowAction.share,
-                        child: Text('Distribuie'),
-                      ),
-                      if (youtubeUri != null)
+                    itemBuilder: (context) {
+                      final theme = Theme.of(context);
+                      final isDarkTheme =
+                          theme.brightness == Brightness.dark;
+                      // AppBar IconTheme is white; menu icons must use the
+                      // surface foreground or they vanish on a light menu.
+                      final menuIconColor = theme.colorScheme.onSurface;
+                      return [
                         PopupMenuItem(
-                          value: _SongOverflowAction.youtube,
-                          child: Text('Deschide în YouTube'),
+                          value: _SongOverflowAction.share,
+                          child: Row(
+                            children: <Widget>[
+                              Icon(Icons.share,
+                                  size: 20, color: menuIconColor),
+                              SizedBox(width: 10),
+                              Text('Distribuie'),
+                            ],
+                          ),
                         ),
-                    ],
+                        if (youtubeUri != null)
+                          PopupMenuItem(
+                            value: _SongOverflowAction.youtube,
+                            child: Row(
+                              children: <Widget>[
+                                Icon(Icons.smart_display_outlined,
+                                    size: 20, color: menuIconColor),
+                                SizedBox(width: 10),
+                                Text('Deschide în YouTube'),
+                              ],
+                            ),
+                          ),
+                        PopupMenuItem(
+                          value: _SongOverflowAction.theme,
+                          child: Row(
+                            children: <Widget>[
+                              Icon(Icons.tonality,
+                                  size: 20, color: menuIconColor),
+                              SizedBox(width: 10),
+                              Text(isDarkTheme
+                                  ? 'Temă luminoasă'
+                                  : 'Temă întunecată'),
+                            ],
+                          ),
+                        ),
+                      ];
+                    },
                   ),
                 ),
               ],
@@ -346,6 +374,9 @@ class _SongScreenState extends State<SongScreen> {
         if (uri != null) {
           await _openYoutube(uri);
         }
+        break;
+      case _SongOverflowAction.theme:
+        BlocProvider.of<ThemeBloc>(context).add(ThemeChanged());
         break;
     }
   }
