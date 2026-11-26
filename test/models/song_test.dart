@@ -17,6 +17,7 @@ Map<String, dynamic> baseJson() => {
       'music_sheet': ['a.jpg', 'b.jpg'],
       'music_sheet_pdfs': ['a.pdf'],
       'youtube_id': 'dQw4w9WgXcQ',
+      'audio_url': 'https://example.com/song.mp3',
     };
 
 void main() {
@@ -28,6 +29,7 @@ void main() {
       expect(song.musicSheet, ['a.jpg', 'b.jpg']);
       expect(song.musicSheetPDFs, ['a.pdf']);
       expect(song.youtubeId, 'dQw4w9WgXcQ');
+      expect(song.audioUrl, 'https://example.com/song.mp3');
       expect(song.number, 4);
       expect(song.bookId, 'CC');
     });
@@ -60,6 +62,18 @@ void main() {
       expect(song.youtubeId, isNull);
       expect(song.youtubeLaunchUri, isNull);
     });
+
+    test('handles missing audio_url', () {
+      final json = baseJson()..remove('audio_url');
+      final song = Song.fromJson(json);
+      expect(song.audioUrl, isNull);
+    });
+
+    test('treats blank audio_url as null', () {
+      final json = baseJson()..['audio_url'] = '   ';
+      final song = Song.fromJson(json);
+      expect(song.audioUrl, isNull);
+    });
   });
 
   group('youtubeLaunchUri', () {
@@ -83,6 +97,7 @@ void main() {
       expect(restored.musicSheet, original.musicSheet);
       expect(restored.musicSheetPDFs, original.musicSheetPDFs);
       expect(restored.youtubeId, original.youtubeId);
+      expect(restored.audioUrl, original.audioUrl);
       expect(restored.searchableText, original.searchableText);
       expect(restored.title, original.title);
       expect(restored.number, original.number);
