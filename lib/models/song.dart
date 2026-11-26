@@ -10,6 +10,7 @@ class Song extends SongSummary {
   List<String>? musicSheet;
   List<String>? musicSheetPDFs;
   String? youtubeId;
+  String? audioUrl;
 
   Song(
       {required String bookId,
@@ -24,6 +25,7 @@ class Song extends SongSummary {
       this.musicSheet,
       this.musicSheetPDFs,
       this.youtubeId,
+      this.audioUrl,
       required this.text,
       required String searchableTitle,
       required this.searchableText,
@@ -73,6 +75,7 @@ class Song extends SongSummary {
       musicSheet: musicSheet?.cast<String>(),
       musicSheetPDFs: musicSheetPDFs?.cast<String>(),
       youtubeId: json['youtube_id'],
+      audioUrl: _trimmedOrNull(json['audio_url']),
       text: text,
       searchableTitle: songSummary.searchableTitle,
       searchableText: searchableText,
@@ -95,6 +98,7 @@ class Song extends SongSummary {
       'music_sheet': musicSheet,
       'music_sheet_pdfs': musicSheetPDFs,
       'youtube_id': youtubeId,
+      'audio_url': audioUrl,
       'text': text,
       'searchable_title': searchableTitle,
       'searchable_text': searchableText,
@@ -110,6 +114,14 @@ class Song extends SongSummary {
       return null;
     }
     return Uri.https('www.youtube.com', '/watch', {'v': value});
+  }
+
+  static String? _trimmedOrNull(dynamic value) {
+    if (value is! String) {
+      return null;
+    }
+    final trimmed = value.trim();
+    return trimmed.isEmpty ? null : trimmed;
   }
 
   static Set<Song> getSongsSetFromSongsJson(String strSongsJson) {
