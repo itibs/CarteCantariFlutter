@@ -2,6 +2,9 @@ import 'package:ccc_flutter/widgets/song_screen/song_audio_mini_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:mocktail/mocktail.dart';
+
+class MockAudioPlayer extends Mock implements AudioPlayer {}
 
 void main() {
   group('formatAudioPosition', () {
@@ -16,8 +19,15 @@ void main() {
   testWidgets(
       'paused bar shows hint and labeled play without starting audio',
       (tester) async {
-    final player = AudioPlayer();
-    addTearDown(player.dispose);
+    final player = MockAudioPlayer();
+    final pausedState = PlayerState(false, ProcessingState.ready);
+    when(() => player.playerState).thenReturn(pausedState);
+    when(() => player.playerStateStream)
+        .thenAnswer((_) => Stream.value(pausedState));
+    when(() => player.durationStream)
+        .thenAnswer((_) => Stream.value(const Duration(minutes: 3)));
+    when(() => player.positionStream)
+        .thenAnswer((_) => Stream.value(Duration.zero));
 
     await tester.pumpWidget(
       MaterialApp(
@@ -31,10 +41,11 @@ void main() {
         ),
       ),
     );
+    await tester.pump();
 
     expect(find.text('Apasă Redă pentru a porni muzica'), findsOneWidget);
     expect(find.text('Redă'), findsOneWidget);
     expect(find.text('Pauză'), findsNothing);
-    expect(player.playing, isFalse);
+    verifyNever(() => player.play());
   });
 }
